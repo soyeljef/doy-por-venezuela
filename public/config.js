@@ -13,8 +13,8 @@ window.APP_CONFIG = {
   // --- Marca / textos ---
   BRAND:          "Voy por Venezuela",
   EYEBROW:        "Red de ayuda · Emergencia",
-  HERO_TITLE:     "Ayudemos a Venezuela",
-  HERO_SUBTITLE:  "Una web para reunir suministros y cubrir necesidades en la emergencia. Publica lo que ofreces o lo que necesitas, y se coordina directo por WhatsApp. Sin cuentas, sin registro.",
+  HERO_TITLE:     "Ayudemos a Venezuela 🇻🇪❤️",
+  HERO_SUBTITLE:  "Una web para reunir suministros, cubrir necesidades y reencontrar personas en la emergencia. Publica lo que ofreces, lo que necesitas o a quién buscas, y se coordina directo por WhatsApp. Sin cuentas, sin registro.",
 
   // --- Ubicación por defecto ---
   DEFAULT_COUNTRY: "Venezuela",
