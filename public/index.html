@@ -17,13 +17,18 @@
     <h1 id="heroTitle">Ayudemos a Venezuela</h1>
     <p class="sub" id="heroSub"></p>
     <div class="tally">
-      <div class="stat"><div class="n green" id="countOffer">0</div><div class="l">Se ofrece</div></div>
-      <div class="stat"><div class="n orange" id="countNeed">0</div><div class="l">Se necesita</div></div>
-      <div class="stat"><div class="n taken" id="countTaken">0</div><div class="l">Resueltos</div></div>
+      <div class="stat"><div class="n green" id="countOffer">0</div><div class="l" id="lblStat1">Se ofrece</div></div>
+      <div class="stat"><div class="n orange" id="countNeed">0</div><div class="l" id="lblStat2">Se necesita</div></div>
+      <div class="stat"><div class="n taken" id="countTaken">0</div><div class="l" id="lblStat3">Resueltos</div></div>
       <div style="flex:1"></div>
       <button class="btn btn-primary" id="openPost">＋ Publicar</button>
     </div>
   </header>
+
+  <nav class="panelnav" id="panelNav">
+    <button class="pn-btn active" data-panel="ayuda">🤝 Ayuda</button>
+    <button class="pn-btn" data-panel="personas">🔎 Personas</button>
+  </nav>
 
   <div id="configWarn"></div>
 
@@ -34,21 +39,44 @@
 
   <div id="errBox"></div>
 
-  <div class="segment" id="typeSeg">
-    <button class="seg-btn active" data-type="">Todo</button>
-    <button class="seg-btn" data-type="ofrezco">🤲 Se ofrece</button>
-    <button class="seg-btn" data-type="necesito">🙋 Se necesita</button>
-  </div>
+  <section id="panelAyuda">
+    <div class="segment" id="typeSeg">
+      <button class="seg-btn active" data-type="">Todo</button>
+      <button class="seg-btn" data-type="ofrezco">🤲 Se ofrece</button>
+      <button class="seg-btn" data-type="necesito">🙋 Se necesita</button>
+    </div>
 
-  <div class="toolbar">
-    <div class="grow"><input class="field" id="search" type="search" placeholder="Buscar: agua, cobijas, Caracas…" aria-label="Buscar"></div>
-    <select class="field" id="cityFilter" style="flex:0 0 170px" aria-label="Filtrar por ciudad"><option value="">Todas las ciudades</option></select>
-    <label class="toggle"><input type="checkbox" id="hideTaken"> Ocultar resueltos</label>
-    <button class="btn btn-ghost btn-sm" id="refresh" title="Actualizar">↻ Actualizar</button>
-  </div>
+    <div class="toolbar">
+      <div class="grow"><input class="field" id="search" type="search" placeholder="Buscar: agua, cobijas, Caracas…" aria-label="Buscar"></div>
+      <select class="field" id="cityFilter" style="flex:0 0 170px" aria-label="Filtrar por ciudad"><option value="">Todas las ciudades</option></select>
+      <label class="toggle"><input type="checkbox" id="hideTaken"> Ocultar resueltos</label>
+      <button class="btn btn-ghost btn-sm" id="refresh" title="Actualizar">↻ Actualizar</button>
+    </div>
 
-  <div class="chips" id="catChips" style="margin-bottom:18px"></div>
-  <div id="board"><div class="loading">Cargando el tablón…</div></div>
+    <div class="chips" id="catChips" style="margin-bottom:18px"></div>
+    <div id="board"><div class="loading">Cargando el tablón…</div></div>
+  </section>
+
+  <section id="panelPersonas" class="hide">
+    <div class="disclaimer" id="perInfo" style="border-left-color:var(--signal)">
+      <strong>Encontrar personas.</strong> Publica el nombre, cédula y un teléfono de contacto de alguien a quien se busca, o de alguien ya ubicado, para reencontrar familias. La cédula se muestra <strong>parcial</strong> (solo los últimos dígitos) para proteger su identidad. Publica solo con fin humanitario y datos veraces.
+    </div>
+
+    <div class="segment" id="perSeg">
+      <button class="seg-btn active" data-pe="">Todas</button>
+      <button class="seg-btn" data-pe="busca">🔎 Se busca</button>
+      <button class="seg-btn" data-pe="ubicada">✅ Ubicada</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="grow"><input class="field" id="perSearch" type="search" placeholder="Buscar por nombre o ciudad…" aria-label="Buscar persona"></div>
+      <select class="field" id="perCityFilter" style="flex:0 0 170px" aria-label="Filtrar por ciudad"><option value="">Todas las ciudades</option></select>
+      <button class="btn btn-ghost btn-sm" id="openBulk" title="Subir varias">⇪ Subir lista</button>
+      <button class="btn btn-ghost btn-sm" id="perRefresh" title="Actualizar">↻ Actualizar</button>
+    </div>
+
+    <div id="perBoard"><div class="loading">Cargando…</div></div>
+  </section>
 
   <footer>
     Hecho para ayudarnos entre todos. Lo que publiques es público: cualquiera con el enlace verá el ítem, la ubicación y el teléfono de contacto. No almacenamos información tuya más allá de lo que voluntariamente publicas.
@@ -118,8 +146,8 @@
 <!-- Modal: Código -->
 <div class="overlay" id="codeOverlay">
   <div class="modal">
-    <h2>✅ ¡Publicado!</h2>
-    <p class="lead">Tu publicación ya está en el tablón. Guarda este código para administrarla desde otro dispositivo:</p>
+    <h2 id="codeTitle">✅ ¡Publicado!</h2>
+    <p class="lead" id="codeLead">Tu publicación ya está en el tablón. Guarda este código para administrarla desde otro dispositivo:</p>
     <div class="code-box"><div class="t">Tu código</div><div class="code" id="newCode">—</div></div>
     <p class="hint">En este dispositivo lo recordamos por ti: verás los botones para administrarla directamente en tu publicación.</p>
     <div class="modal-actions"><button class="btn btn-primary btn-block" data-close>Listo</button></div>
@@ -150,6 +178,92 @@
     <div class="modal-actions">
       <button class="btn btn-ghost btn-block" data-close>Cancelar</button>
       <button class="btn btn-primary btn-block" id="askConfirm">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Publicar persona -->
+<div class="overlay" id="personaOverlay">
+  <div class="modal">
+    <button class="x" data-close aria-label="Cerrar">×</button>
+    <h2>Añadir persona</h2>
+    <p class="lead">Para encontrar a alguien o registrar a quien ya fue ubicado.</p>
+    <div class="typepick">
+      <button id="pickBusca" class="sel-need" data-pe="busca">🔎 Se busca<small>Estoy buscando a esta persona</small></button>
+      <button id="pickUbic" data-pe="ubicada">✅ Ubicada<small>Ya está localizada / a salvo</small></button>
+    </div>
+
+    <label class="lbl" for="pe_nombre">Nombre y apellido</label>
+    <input class="field" id="pe_nombre" maxlength="70" placeholder="Ej: María González">
+
+    <label class="lbl" for="pe_cedula">Cédula / identificación <span>(opcional)</span></label>
+    <input class="field" id="pe_cedula" maxlength="30" placeholder="Ej: V-12345678">
+    <p class="hint">Se guarda completa pero en público solo se ven los últimos 4 dígitos.</p>
+
+    <label class="lbl">Ubicación <span>(opcional)</span></label>
+    <select class="field" id="pe_pais"></select>
+    <input class="field" id="pe_ciudad" maxlength="50" placeholder="Ciudad / zona" style="margin-top:8px">
+
+    <label class="lbl" for="pe_tel">WhatsApp de contacto</label>
+    <div class="phone-row">
+      <select class="field" id="pe_cc" aria-label="Código de país">
+        <option value="58">🇻🇪 +58</option><option value="57">🇨🇴 +57</option><option value="52">🇲🇽 +52</option>
+        <option value="34">🇪🇸 +34</option><option value="51">🇵🇪 +51</option><option value="54">🇦🇷 +54</option>
+        <option value="56">🇨🇱 +56</option><option value="593">🇪🇨 +593</option><option value="1">🇺🇸 +1</option>
+      </select>
+      <input class="field grow" id="pe_tel" inputmode="numeric" maxlength="15" placeholder="412 123 4567">
+    </div>
+    <p class="hint">Número donde coordinar (tuyo, de un familiar o del refugio).</p>
+
+    <label class="lbl" for="pe_nota">Nota <span>(opcional)</span></label>
+    <textarea class="field" id="pe_nota" rows="2" maxlength="160" placeholder="Ej: Última vez vista en el sector… / Está en el refugio…"></textarea>
+
+    <label class="consent"><input type="checkbox" id="pe_consent">Publico estos datos con fin humanitario, son veraces y entiendo que el nombre y el teléfono serán públicos.</label>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" data-close>Cancelar</button>
+      <button class="btn btn-primary btn-block" id="submitPersona">Publicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Subir lista (bloque) -->
+<div class="overlay" id="bulkOverlay">
+  <div class="modal">
+    <button class="x" data-close aria-label="Cerrar">×</button>
+    <h2>Subir lista de personas</h2>
+    <p class="lead">Pega varias de golpe: <strong>una persona por línea</strong>, con sus datos separados por coma.</p>
+
+    <div class="code-box" style="background:var(--pine-soft);color:var(--pine);text-align:left">
+      <div class="t" style="color:var(--pine)">Formato por línea</div>
+      <div style="font-weight:700">Nombre, Cédula, Teléfono</div>
+      <div style="font-size:12px;opacity:.85;margin-top:4px">Ej: María González, V-12345678, 4121234567</div>
+    </div>
+
+    <div class="typepick" style="margin-top:12px">
+      <button id="bkBusca" class="sel-need" data-pe="busca">🔎 Se busca<small>Todas en esta lista</small></button>
+      <button id="bkUbic" data-pe="ubicada">✅ Ubicadas<small>Todas en esta lista</small></button>
+    </div>
+
+    <label class="lbl">Ubicación común <span>(opcional, se aplica a todas)</span></label>
+    <div class="phone-row">
+      <select class="field" id="bk_cc" style="flex:0 0 92px" aria-label="Código de país">
+        <option value="58">🇻🇪 +58</option><option value="57">🇨🇴 +57</option><option value="52">🇲🇽 +52</option>
+        <option value="34">🇪🇸 +34</option><option value="51">🇵🇪 +51</option><option value="54">🇦🇷 +54</option>
+        <option value="56">🇨🇱 +56</option><option value="593">🇪🇨 +593</option><option value="1">🇺🇸 +1</option>
+      </select>
+      <input class="field grow" id="bk_ciudad" maxlength="50" placeholder="Ciudad / zona (opcional)">
+    </div>
+
+    <label class="lbl" for="bk_text">Pega la lista aquí</label>
+    <textarea class="field" id="bk_text" rows="8" placeholder="María González, V-12345678, 4121234567&#10;José Pérez, V-87654321, 4149876543&#10;Ana Díaz, , 4145551122"></textarea>
+    <p class="hint" id="bk_count">0 personas detectadas.</p>
+
+    <label class="consent"><input type="checkbox" id="bk_consent">Publico estos datos con fin humanitario, son veraces y entiendo que los nombres y teléfonos serán públicos.</label>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" data-close>Cancelar</button>
+      <button class="btn btn-primary btn-block" id="submitBulk">Subir lista</button>
     </div>
   </div>
 </div>

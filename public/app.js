@@ -13,8 +13,10 @@ const CATS = [
 ];
 const PAISES = ["Venezuela","Colombia","México","España","Perú","Argentina","Chile","Ecuador","Bolivia","Panamá","República Dominicana","Estados Unidos","Otro"];
 const catById = id => CATS.find(c=>c.id===id) || CATS[CATS.length-1];
+const WA_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zM6.597 20.13c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.82 9.82 0 001.523 5.26l-.999 3.648 3.965-1.607zM17.5 14.92c-.075-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>';
 
 let ITEMS=[], filterCat="", filterType="", postType="ofrezco", pendingAction=null, confirmCb=null, sb=null, geo=null;
+let PERSONAS=[], activePanel="ayuda", perFilter="", personaEstado="busca", bulkEstado="busca";
 
 /* ---------- Config check ---------- */
 function configReady(){
@@ -36,6 +38,12 @@ async function loadItems(){
   ITEMS = data || []; clearErr(); rebuildCities(); render();
 }
 async function rpc(name, args){ const { data, error } = await sb.rpc(name, args); if(error) throw error; return data; }
+async function loadPersonas(){
+  if(!sb) return;
+  const { data, error } = await sb.from("personas_public").select("*").order("created_at",{ascending:false}).limit(1000);
+  if(error){ if(activePanel==='personas') showErr("No se pudo leer el panel de personas. Intenta Actualizar."); return; }
+  PERSONAS = data || []; if(activePanel==='personas') clearErr(); rebuildPerCities(); renderPersonas();
+}
 
 /* ---------- Helpers ---------- */
 function $(id){ return document.getElementById(id); }
@@ -64,11 +72,26 @@ function currentList(){
 }
 
 /* ---------- Render ---------- */
+function updateTally(){
+  if(activePanel==='personas'){
+    $("countOffer").textContent=PERSONAS.filter(p=>p.estado==='ubicada').length;
+    $("countNeed").textContent=PERSONAS.filter(p=>p.estado==='busca').length;
+    $("countTaken").textContent=PERSONAS.length;
+    $("lblStat1").textContent="Ubicadas"; $("lblStat2").textContent="Se busca"; $("lblStat3").textContent="Registradas";
+    $("countTaken").className="n";
+    $("openPost").textContent="＋ Añadir persona";
+  }else{
+    $("countOffer").textContent=ITEMS.filter(i=>i.tipo==='ofrezco'&&i.estado!=='tomado').length;
+    $("countNeed").textContent=ITEMS.filter(i=>i.tipo==='necesito'&&i.estado!=='tomado').length;
+    $("countTaken").textContent=ITEMS.filter(i=>i.estado==='tomado').length;
+    $("lblStat1").textContent="Se ofrece"; $("lblStat2").textContent="Se necesita"; $("lblStat3").textContent="Resueltos";
+    $("countTaken").className="n taken";
+    $("openPost").textContent="＋ Publicar";
+  }
+}
 function render(){
   const board=$("board");
-  $("countOffer").textContent=ITEMS.filter(i=>i.tipo==='ofrezco'&&i.estado!=='tomado').length;
-  $("countNeed").textContent=ITEMS.filter(i=>i.tipo==='necesito'&&i.estado!=='tomado').length;
-  $("countTaken").textContent=ITEMS.filter(i=>i.estado==='tomado').length;
+  updateTally();
   const list=currentList();
   if(ITEMS.length===0){ board.innerHTML='<div class="empty"><h3>El tablón está vacío</h3><p>Sé la primera persona en publicar. Toca “Publicar”.</p></div>'; return; }
   if(list.length===0){ board.innerHTML='<div class="empty"><h3>Sin resultados</h3><p>Prueba con otra búsqueda, ciudad, categoría o pestaña.</p></div>'; return; }
@@ -153,6 +176,82 @@ async function doDelete(id){
   try{ const ok=await rpc("delete_item",{p_id:id,p_code:code}); if(!ok){ showErr("No se pudo borrar (¿código no válido?)."); return; } }
   catch(e){ showErr("No se pudo borrar. Intenta de nuevo."); return; }
   forgetMine(id); ITEMS=ITEMS.filter(x=>x.id!==id); rebuildCities(); render();
+}
+
+/* ---------- Personas (encontrar personas) ---------- */
+function rebuildPerCities(){
+  const sel=$("perCityFilter"); if(!sel) return; const cur=sel.value;
+  const cities=[...new Set(PERSONAS.map(p=>p.ciudad).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  sel.innerHTML='<option value="">Todas las ciudades</option>'+cities.map(c=>`<option>${esc(c)}</option>`).join('');
+  sel.value=cities.includes(cur)?cur:"";
+}
+function currentPersonaList(){
+  const q=$("perSearch").value.trim().toLowerCase(); const city=$("perCityFilter").value;
+  return PERSONAS.filter(p=>{
+    if(perFilter && p.estado!==perFilter) return false;
+    if(city && p.ciudad!==city) return false;
+    if(q){ const blob=(p.nombre+' '+(p.ciudad||'')+' '+(p.pais||'')+' '+(p.nota||'')+' '+(p.cedula||'')).toLowerCase(); if(!blob.includes(q)) return false; }
+    return true;
+  });
+}
+function renderPersonas(){
+  const board=$("perBoard"); if(!board) return;
+  if(activePanel==='personas') updateTally();
+  const list=currentPersonaList();
+  if(PERSONAS.length===0){ board.innerHTML='<div class="empty"><h3>Aún no hay personas</h3><p>Toca “Añadir persona” o “Subir lista” para empezar.</p></div>'; return; }
+  if(list.length===0){ board.innerHTML='<div class="empty"><h3>Sin resultados</h3><p>Prueba con otro nombre, ciudad o pestaña.</p></div>'; return; }
+  board.innerHTML='<div class="grid">'+list.map(p=>personaCardHTML(p,!!isMine(p.id))).join('')+'</div>';
+}
+function personaCardHTML(p,owner){
+  const busca=p.estado==='busca';
+  const badge=busca?'<span class="badge need">🔎 Se busca</span>':'<span class="badge offer">✅ Ubicada</span>';
+  const ced=p.cedula?`<div class="row"><span class="k">Cédula</span><span>${esc(p.cedula)}</span></div>`:'';
+  const loc=(p.ciudad||p.pais)?`<div class="row"><span class="k">Ubicación</span><span>${esc([p.ciudad,p.pais].filter(Boolean).join(', '))}</span></div>`:'';
+  const nota=p.nota?`<p class="note">“${esc(p.nota)}”</p>`:'';
+  let actions=`<button class="btn btn-wa" data-pact="wa" data-id="${p.id}">${WA_SVG} Contactar</button>`;
+  if(owner){
+    if(busca) actions+=`<button class="btn btn-ghost btn-sm btn-block" style="margin-top:8px" data-pact="ubic" data-id="${p.id}">✅ Marcar como ubicada</button>`;
+    else actions+=`<button class="btn btn-ghost btn-sm btn-block" style="margin-top:8px" data-pact="busca" data-id="${p.id}">🔎 Volver a “se busca”</button>`;
+    actions+=`<button class="btn btn-ghost btn-sm btn-block" style="margin-top:8px" data-pact="del" data-id="${p.id}">🗑 Borrar</button>`;
+  }
+  return `<div class="card ${busca?'need':'offer'}">
+    ${badge}
+    <h3>${esc(p.nombre)}</h3>
+    <div class="meta">${ced}${loc}</div>
+    ${nota}
+    <div class="stamp-area"><span class="ago">${timeAgo(p.created_at)}</span></div>
+    <div class="actions">${actions}</div>
+  </div>`;
+}
+function contactPersona(id){
+  const p=PERSONAS.find(x=>x.id===id); if(!p) return;
+  const phone=(p.cc||'')+(p.tel||'').replace(/\D/g,'');
+  const loc=[p.ciudad,p.pais].filter(Boolean).join(', '); const locTxt=loc?(' ('+loc+')'):'';
+  const msg=p.estado==='busca'
+    ? `Hola 👋 Vi en ${CFG.BRAND} que se está buscando a ${p.nombre}${locTxt}. Tengo información o quiero ayudar a ubicarla.`
+    : `Hola 👋 Vi en ${CFG.BRAND} el registro de ${p.nombre}${locTxt}. Quiero contactar para coordinar.`;
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,"_blank","noopener");
+}
+async function markPersona(id,estado){
+  const code=isMine(id); if(!code) return;
+  try{ const ok=await rpc("set_persona_estado",{p_id:id,p_code:code,p_estado:estado}); if(!ok){ showErr("No se pudo actualizar."); return; } }
+  catch(e){ showErr("No se pudo guardar el cambio. Intenta de nuevo."); return; }
+  const p=PERSONAS.find(x=>x.id===id); if(p) p.estado=estado; renderPersonas();
+}
+function askDeletePersona(id){ askConfirm("¿Borrar esta ficha?","Esto la elimina del panel de personas para siempre. No se puede deshacer.",()=>deletePersona(id)); }
+async function deletePersona(id){
+  const code=isMine(id);
+  try{ const ok=await rpc("delete_persona",{p_id:id,p_code:code}); if(!ok){ showErr("No se pudo borrar (¿código no válido?)."); return; } }
+  catch(e){ showErr("No se pudo borrar. Intenta de nuevo."); return; }
+  forgetMine(id); PERSONAS=PERSONAS.filter(x=>x.id!==id); rebuildPerCities(); renderPersonas();
+}
+function switchPanel(name){
+  activePanel=name; clearErr();
+  $("panelNav").querySelectorAll(".pn-btn").forEach(b=>b.classList.toggle("active",b.dataset.panel===name));
+  $("panelAyuda").classList.toggle("hide",name!=='ayuda');
+  $("panelPersonas").classList.toggle("hide",name!=='personas');
+  updateTally();
+  if(name==='personas'){ renderPersonas(); if(!PERSONAS.length) loadPersonas(); } else render();
 }
 
 /* ---------- Confirm (heart) modal ---------- */
@@ -241,8 +340,82 @@ $("submitPost").onclick=async()=>{
   ["f_titulo","f_cantidad","f_ciudad","f_dir","f_tel","f_nombre","f_nota"].forEach(id=>$(id).value="");
   $("f_consent").checked=false; $("geoStatus").textContent=""; geo=null;
   btn.disabled=false; btn.textContent="Publicar"; closeAll();
+  $("codeTitle").textContent="✅ ¡Publicado!";
+  $("codeLead").textContent="Tu publicación ya está en el tablón. Guarda este código para administrarla desde otro dispositivo:";
   $("newCode").textContent=code; $("codeOverlay").classList.add("open");
   rebuildCities(); render();
+};
+
+/* ---------- Publicar persona ---------- */
+function setPersonaEstado(t){
+  personaEstado=t;
+  $("pickBusca").className=t==='busca'?'sel-need':'';
+  $("pickUbic").className=t==='ubicada'?'sel-offer':'';
+}
+function openPersona(estado){ setPersonaEstado(estado||'busca'); $("personaOverlay").classList.add("open"); }
+$("submitPersona").onclick=async()=>{
+  const nombre=$("pe_nombre").value.trim();
+  const tel=$("pe_tel").value.replace(/\D/g,"");
+  if(!nombre){ alert("Escribe el nombre de la persona."); return; }
+  if(tel.length<7){ alert("Escribe un número de WhatsApp de contacto válido."); return; }
+  if(!$("pe_consent").checked){ alert("Marca la casilla de aceptación para publicar."); return; }
+  const code=genCode();
+  const payload={ nombre, cedula:$("pe_cedula").value.trim(), estado:personaEstado,
+    cc:$("pe_cc").value, tel, pais:$("pe_pais").value, ciudad:$("pe_ciudad").value.trim(),
+    nota:$("pe_nota").value.trim(), code };
+  const btn=$("submitPersona"); btn.disabled=true; btn.textContent="Publicando…";
+  let row;
+  try{ row=await rpc("publish_persona",{payload}); }
+  catch(e){ showErr("No se pudo publicar. Revisa tu conexión e intenta de nuevo."); btn.disabled=false; btn.textContent="Publicar"; return; }
+  rememberMine(row.id, code);
+  PERSONAS.unshift(row);
+  ["pe_nombre","pe_cedula","pe_ciudad","pe_tel","pe_nota"].forEach(id=>$(id).value="");
+  $("pe_consent").checked=false;
+  btn.disabled=false; btn.textContent="Publicar"; closeAll();
+  $("codeTitle").textContent="✅ ¡Persona publicada!";
+  $("codeLead").textContent="Ya está en el panel de personas. Guarda este código para administrarla:";
+  $("newCode").textContent=code; $("codeOverlay").classList.add("open");
+  rebuildPerCities(); renderPersonas();
+};
+
+/* ---------- Subir lista (bloque) ---------- */
+function setBulkEstado(t){
+  bulkEstado=t;
+  $("bkBusca").className=t==='busca'?'sel-need':'';
+  $("bkUbic").className=t==='ubicada'?'sel-offer':'';
+}
+function parseBulk(text){
+  const rows=[];
+  text.split(/\r?\n/).forEach(line=>{
+    if(!line.trim()) return;
+    const parts=line.split(/[,;\t]/).map(s=>s.trim());
+    let nombre="",cedula="",tel="";
+    if(parts.length>=3){ nombre=parts[0]; cedula=parts[1]; tel=parts.slice(2).join(' '); }
+    else if(parts.length===2){ nombre=parts[0]; tel=parts[1]; }
+    else { nombre=parts[0]; }
+    tel=(tel||"").replace(/\D/g,"");
+    if(nombre && tel.length>=7) rows.push({nombre,cedula,tel});
+  });
+  return rows;
+}
+function updateBulkCount(){ const n=parseBulk($("bk_text").value).length; $("bk_count").textContent=n+(n===1?" persona válida detectada.":" personas válidas detectadas."); }
+$("submitBulk").onclick=async()=>{
+  const rows=parseBulk($("bk_text").value);
+  if(!rows.length){ alert("No se detectaron personas válidas. Cada línea necesita al menos nombre y teléfono."); return; }
+  if(!$("bk_consent").checked){ alert("Marca la casilla de aceptación para publicar."); return; }
+  const code=genCode();
+  const payload={ code, estado:bulkEstado, cc:$("bk_cc").value, ciudad:$("bk_ciudad").value.trim(), personas:rows };
+  const btn=$("submitBulk"); btn.disabled=true; btn.textContent="Subiendo…";
+  let added;
+  try{ added=await rpc("publish_personas_bulk",{payload}); }
+  catch(e){ showErr("No se pudo subir la lista. Revisa tu conexión e intenta de nuevo."); btn.disabled=false; btn.textContent="Subir lista"; return; }
+  (added||[]).forEach(row=>{ rememberMine(row.id, code); PERSONAS.unshift(row); });
+  $("bk_text").value=""; $("bk_ciudad").value=""; $("bk_consent").checked=false; updateBulkCount();
+  btn.disabled=false; btn.textContent="Subir lista"; closeAll();
+  $("codeTitle").textContent="✅ ¡Lista subida!";
+  $("codeLead").textContent="Se añadieron "+(added?added.length:0)+" personas. Guarda este código para administrarlas todas:";
+  $("newCode").textContent=code; $("codeOverlay").classList.add("open");
+  rebuildPerCities(); renderPersonas();
 };
 
 /* ---------- Wiring ---------- */
@@ -274,9 +447,36 @@ function initUI(){
   document.querySelectorAll("[data-close]").forEach(b=>b.onclick=closeAll);
   document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{ if(e.target===o) closeAll(); }));
   document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeAll(); });
-  $("openPost").onclick=()=>{ setPostType("ofrezco"); $("postOverlay").classList.add("open"); };
+  $("openPost").onclick=()=>{
+    if(activePanel==='personas'){ openPersona('busca'); }
+    else { setPostType("ofrezco"); $("postOverlay").classList.add("open"); }
+  };
   ["search","cityFilter","hideTaken"].forEach(id=>$(id).addEventListener("input",render));
   $("refresh").onclick=loadItems;
+
+  // --- Panel "Personas" ---
+  $("pe_pais").innerHTML=PAISES.map(p=>`<option value="${p}">${p}</option>`).join("");
+  if(CFG.DEFAULT_COUNTRY) $("pe_pais").value=CFG.DEFAULT_COUNTRY;
+  if(CFG.DEFAULT_CC){ [["pe_cc"],["bk_cc"]].forEach(([id])=>{ const o=[...$(id).options].find(x=>x.value===String(CFG.DEFAULT_CC)); if(o) $(id).value=String(CFG.DEFAULT_CC); }); }
+  $("panelNav").querySelectorAll(".pn-btn").forEach(b=>b.onclick=()=>switchPanel(b.dataset.panel));
+  const pseg=$("perSeg");
+  pseg.querySelectorAll(".seg-btn").forEach(b=>b.onclick=()=>{ perFilter=b.dataset.pe; pseg.querySelectorAll(".seg-btn").forEach(x=>x.classList.remove("active","need")); b.classList.add("active"); if(b.dataset.pe==='busca') b.classList.add("need"); renderPersonas(); });
+  ["perSearch","perCityFilter"].forEach(id=>$(id).addEventListener("input",renderPersonas));
+  $("perRefresh").onclick=loadPersonas;
+  $("openBulk").onclick=()=>{ setBulkEstado("busca"); updateBulkCount(); $("bulkOverlay").classList.add("open"); };
+  $("pickBusca").onclick=()=>setPersonaEstado("busca");
+  $("pickUbic").onclick=()=>setPersonaEstado("ubicada");
+  $("bkBusca").onclick=()=>setBulkEstado("busca");
+  $("bkUbic").onclick=()=>setBulkEstado("ubicada");
+  $("bk_text").addEventListener("input",updateBulkCount);
+  $("perBoard").addEventListener("click",e=>{
+    const b=e.target.closest("[data-pact]"); if(!b) return;
+    const id=b.dataset.id, act=b.dataset.pact;
+    if(act==="wa") contactPersona(id);
+    else if(act==="ubic") markPersona(id,"ubicada");
+    else if(act==="busca") markPersona(id,"busca");
+    else if(act==="del") askDeletePersona(id);
+  });
 }
 
 function boot(){
@@ -287,8 +487,8 @@ function boot(){
     return;
   }
   sb=createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
-  loadItems();
-  setInterval(loadItems, CFG.POLL_MS||20000);
-  document.addEventListener("visibilitychange",()=>{ if(!document.hidden) loadItems(); });
+  loadItems(); loadPersonas();
+  setInterval(()=>{ loadItems(); loadPersonas(); }, CFG.POLL_MS||20000);
+  document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ loadItems(); loadPersonas(); } });
 }
 boot();

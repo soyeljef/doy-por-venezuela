@@ -16,6 +16,15 @@ La gente publica lo que **ofrece** o lo que **necesita**; se coordina por WhatsA
 - RLS activo en `items`; `anon` no puede tocar la tabla directo. No rompas esto.
 - El `code` de cada publicación se guarda en `localStorage` (`dpv_mine`) para reconocer al autor en su dispositivo.
 
+## Módulo "Personas" (encontrar personas)
+- Segundo panel (menú `panelNav`: Ayuda / Personas). Misma filosofía: contacto por WhatsApp.
+- LEE de la vista `personas_public` (cédula **enmascarada** vía `mask_cedula`, sin `code`).
+- ESCRIBE vía RPC: `publish_persona(payload)`, `publish_personas_bulk(payload)` (carga por bloques),
+  `set_persona_estado(p_id,p_code,p_estado)`, `delete_persona(p_id,p_code)`.
+- Estados: `busca` / `ubicada`. Cambiar estado y borrar requieren el `code` del autor (en `localStorage`).
+- Si cambias columnas de `personas`: actualiza a la vez `schema.sql` (tabla + vista + `publish_persona`/bulk),
+  `index.html` (inputs de los modales `personaOverlay`/`bulkOverlay`) y `app.js` (`submitPersona`/`submitBulk`/`personaCardHTML`).
+
 ## Archivos clave
 - `public/config.js` — credenciales de Supabase y textos de marca. Es lo único que el usuario edita.
 - `public/app.js` — toda la lógica. Funciones: `loadItems`, `publish` (submitPost), `markGone`, `reopen`, `doDelete`, geolocalización (`geoBtn`).

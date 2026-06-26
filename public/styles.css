@@ -18,6 +18,10 @@ h1{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-
 .disclaimer{background:#fff;border:1px solid var(--line);border-left:4px solid var(--pine);border-radius:12px;padding:13px 15px;margin:0 0 18px;font-size:13px;color:var(--muted);line-height:1.5;position:relative}
 .disclaimer strong{color:var(--ink)}
 .disclaimer .x{position:absolute;top:8px;right:10px;background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer}
+.panelnav{display:flex;gap:6px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:5px;margin:0 0 18px;box-shadow:var(--shadow)}
+.pn-btn{flex:1;border:none;background:none;font-family:inherit;font-weight:700;font-size:15px;color:var(--muted);padding:12px 14px;border-radius:10px;cursor:pointer;transition:.12s;white-space:nowrap}
+.pn-btn:hover{color:var(--ink)}
+.pn-btn.active{background:var(--ink);color:#fff}
 .segment{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:14px;gap:4px}
 .seg-btn{border:none;background:none;font-family:inherit;font-weight:700;font-size:14px;color:var(--muted);padding:8px 16px;border-radius:9px;cursor:pointer;transition:.12s;white-space:nowrap}
 .seg-btn.active{background:var(--pine);color:#fff}.seg-btn.active.need{background:var(--signal)}
