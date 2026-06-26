@@ -114,6 +114,10 @@ create table if not exists public.personas (
   tel         text not null,
   ciudad      text default '',
   pais        text default '',
+  dir         text default '',
+  ref         text default '',
+  lat         double precision,
+  lng         double precision,
   nota        text default '',
   code        text not null,                   -- código privado para administrar
   created_at  timestamptz not null default now(),
@@ -139,7 +143,8 @@ $$;
 
 create or replace view public.personas_public as
   select id, nombre, public.mask_cedula(cedula) as cedula, estado,
-         cc, tel, ciudad, pais, nota, created_at, updated_at
+         cc, tel, ciudad, pais, nota, created_at, updated_at,
+         dir, ref, lat, lng
   from public.personas;
 
 grant select  on public.personas_public to anon, authenticated;
@@ -150,7 +155,7 @@ returns public.personas_public
 language plpgsql security definer set search_path = public as $$
 declare new_id uuid; out public.personas_public;
 begin
-  insert into public.personas (nombre, cedula, estado, cc, tel, ciudad, pais, nota, code)
+  insert into public.personas (nombre, cedula, estado, cc, tel, ciudad, pais, dir, ref, lat, lng, nota, code)
   values (
     payload->>'nombre',
     coalesce(payload->>'cedula',''),
@@ -159,6 +164,10 @@ begin
     payload->>'tel',
     coalesce(payload->>'ciudad',''),
     coalesce(payload->>'pais',''),
+    coalesce(payload->>'dir',''),
+    coalesce(payload->>'ref',''),
+    nullif(payload->>'lat','')::double precision,
+    nullif(payload->>'lng','')::double precision,
     coalesce(payload->>'nota',''),
     payload->>'code'
   ) returning id into new_id;
@@ -178,7 +187,7 @@ begin
     if coalesce(btrim(item->>'nombre'),'') = '' or coalesce(btrim(item->>'tel'),'') = '' then
       continue;
     end if;
-    insert into public.personas (nombre, cedula, estado, cc, tel, ciudad, pais, nota, code)
+    insert into public.personas (nombre, cedula, estado, cc, tel, ciudad, pais, dir, ref, lat, lng, nota, code)
     values (
       item->>'nombre',
       coalesce(item->>'cedula',''),
@@ -187,6 +196,10 @@ begin
       item->>'tel',
       coalesce(nullif(item->>'ciudad',''), payload->>'ciudad', ''),
       coalesce(nullif(item->>'pais',''), payload->>'pais', ''),
+      coalesce(nullif(item->>'dir',''), payload->>'dir', ''),
+      coalesce(nullif(item->>'ref',''), payload->>'ref', ''),
+      nullif(coalesce(item->>'lat', payload->>'lat'),'')::double precision,
+      nullif(coalesce(item->>'lng', payload->>'lng'),'')::double precision,
       coalesce(item->>'nota',''),
       payload->>'code'
     ) returning id into nid;

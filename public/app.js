@@ -16,7 +16,7 @@ const catById = id => CATS.find(c=>c.id===id) || CATS[CATS.length-1];
 const WA_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zM6.597 20.13c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.82 9.82 0 001.523 5.26l-.999 3.648 3.965-1.607zM17.5 14.92c-.075-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>';
 
 let ITEMS=[], filterCat="", filterType="", postType="ofrezco", pendingAction=null, confirmCb=null, sb=null, geo=null;
-let PERSONAS=[], activePanel="ayuda", perFilter="", personaEstado="busca", bulkEstado="busca";
+let PERSONAS=[], activePanel="ayuda", perFilter="", personaEstado="busca", bulkEstado="busca", personaGeo=null;
 
 /* ---------- Config check ---------- */
 function configReady(){
@@ -207,6 +207,9 @@ function personaCardHTML(p,owner){
   const badge=busca?'<span class="badge need">🔎 Se busca</span>':'<span class="badge offer">✅ Ubicada</span>';
   const ced=p.cedula?`<div class="row"><span class="k">Cédula</span><span>${esc(p.cedula)}</span></div>`:'';
   const loc=(p.ciudad||p.pais)?`<div class="row"><span class="k">Ubicación</span><span>${esc([p.ciudad,p.pais].filter(Boolean).join(', '))}</span></div>`:'';
+  const dir=p.dir?`<div class="row"><span class="k">Lugar</span><span>${esc(p.dir)}</span></div>`:'';
+  const ref=p.ref?`<div class="row"><span class="k">Referencia</span><span>${esc(p.ref)}</span></div>`:'';
+  const map=(p.lat&&p.lng)?`<div class="row"><span class="k"></span><a class="maplink" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${p.lat},${p.lng}">📍 Ver en mapa</a></div>`:'';
   const nota=p.nota?`<p class="note">“${esc(p.nota)}”</p>`:'';
   let actions=`<button class="btn btn-wa" data-pact="wa" data-id="${p.id}">${WA_SVG} Contactar</button>`;
   if(owner){
@@ -217,7 +220,7 @@ function personaCardHTML(p,owner){
   return `<div class="card ${busca?'need':'offer'}">
     ${badge}
     <h3>${esc(p.nombre)}</h3>
-    <div class="meta">${ced}${loc}</div>
+    <div class="meta">${ced}${loc}${dir}${ref}${map}</div>
     ${nota}
     <div class="stamp-area"><span class="ago">${timeAgo(p.created_at)}</span></div>
     <div class="actions">${actions}</div>
@@ -273,6 +276,32 @@ $("askConfirm").onclick=async()=>{
 };
 
 /* ---------- Geolocation ---------- */
+function runGeo(statusId, fields, onCoords){
+  const st=$(statusId);
+  if(!navigator.geolocation){ st.style.color="#c0392b"; st.textContent="Tu navegador no permite ubicación. Escríbela manualmente."; return; }
+  st.style.color="var(--muted)"; st.textContent="Obteniendo ubicación…";
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const lat=pos.coords.latitude.toFixed(6), lng=pos.coords.longitude.toFixed(6);
+    onCoords({lat,lng});
+    st.style.color="var(--pine)"; st.textContent="✅ Ubicación capturada. Completando dirección…";
+    try{
+      const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=es`,{headers:{"Accept":"application/json"}});
+      const d=await r.json(); const a=d.address||{};
+      const ciudad=a.city||a.town||a.village||a.municipality||a.county||"";
+      const pais=a.country||"";
+      const calle=[a.road,a.house_number].filter(Boolean).join(" ");
+      const barrio=a.suburb||a.neighbourhood||a.quarter||"";
+      if(ciudad && fields.ciudad) $(fields.ciudad).value=ciudad;
+      if(pais && fields.pais){ const opt=[...$(fields.pais).options].find(o=>o.value.toLowerCase()===pais.toLowerCase()); $(fields.pais).value=opt?opt.value:"Otro"; }
+      const dirVal=[calle,barrio].filter(Boolean).join(", ");
+      if(dirVal && fields.dir) $(fields.dir).value=dirVal;
+      st.textContent="✅ Ubicación lista. Revísala y ajústala si hace falta.";
+    }catch(e){ st.textContent="✅ Ubicación capturada (se guardará el punto en el mapa). Escribe los detalles a mano."; }
+  },err=>{
+    st.style.color="#c0392b";
+    st.textContent = err.code===1 ? "Permiso de ubicación denegado. Escríbela manualmente." : "No se pudo obtener la ubicación. Escríbela manualmente.";
+  },{enableHighAccuracy:true,timeout:10000});
+}
 $("geoBtn").onclick=()=>{
   const st=$("geoStatus");
   if(!navigator.geolocation){ st.style.color="#c0392b"; st.textContent="Tu navegador no permite ubicación. Escríbela manualmente."; return; }
@@ -362,6 +391,8 @@ $("submitPersona").onclick=async()=>{
   const code=genCode();
   const payload={ nombre, cedula:$("pe_cedula").value.trim(), estado:personaEstado,
     cc:$("pe_cc").value, tel, pais:$("pe_pais").value, ciudad:$("pe_ciudad").value.trim(),
+    dir:$("pe_dir").value.trim(), ref:$("pe_ref").value.trim(),
+    lat:personaGeo?personaGeo.lat:'', lng:personaGeo?personaGeo.lng:'',
     nota:$("pe_nota").value.trim(), code };
   const btn=$("submitPersona"); btn.disabled=true; btn.textContent="Publicando…";
   let row;
@@ -369,8 +400,8 @@ $("submitPersona").onclick=async()=>{
   catch(e){ showErr("No se pudo publicar. Revisa tu conexión e intenta de nuevo."); btn.disabled=false; btn.textContent="Publicar"; return; }
   rememberMine(row.id, code);
   PERSONAS.unshift(row);
-  ["pe_nombre","pe_cedula","pe_ciudad","pe_tel","pe_nota"].forEach(id=>$(id).value="");
-  $("pe_consent").checked=false;
+  ["pe_nombre","pe_cedula","pe_ciudad","pe_dir","pe_ref","pe_tel","pe_nota"].forEach(id=>$(id).value="");
+  $("pe_consent").checked=false; $("pe_geoStatus").textContent=""; personaGeo=null;
   btn.disabled=false; btn.textContent="Publicar"; closeAll();
   $("codeTitle").textContent="✅ ¡Persona publicada!";
   $("codeLead").textContent="Ya está en el panel de personas. Guarda este código para administrarla:";
@@ -477,6 +508,16 @@ function initUI(){
     else if(act==="busca") markPersona(id,"busca");
     else if(act==="del") askDeletePersona(id);
   });
+  $("pe_geoBtn").onclick=()=>runGeo("pe_geoStatus",{ciudad:"pe_ciudad",pais:"pe_pais",dir:"pe_dir"},c=>{ personaGeo=c; });
+
+  // --- Popup de bienvenida ---
+  $("welcomeOverlay").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
+    const go=b.dataset.go; closeAll();
+    if(go==='ofrezco'){ switchPanel('ayuda'); setPostType('ofrezco'); $("postOverlay").classList.add("open"); }
+    else if(go==='necesito'){ switchPanel('ayuda'); setPostType('necesito'); $("postOverlay").classList.add("open"); }
+    else if(go==='busca'){ switchPanel('personas'); openPersona('busca'); }
+    else if(go==='ubicada'){ switchPanel('personas'); openPersona('ubicada'); }
+  });
 }
 
 function boot(){
@@ -487,6 +528,7 @@ function boot(){
     return;
   }
   sb=createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+  try{ if(!sessionStorage.getItem("dpv_welcomed")){ sessionStorage.setItem("dpv_welcomed","1"); $("welcomeOverlay").classList.add("open"); } }catch(e){ $("welcomeOverlay").classList.add("open"); }
   loadItems(); loadPersonas();
   setInterval(()=>{ loadItems(); loadPersonas(); }, CFG.POLL_MS||20000);
   document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ loadItems(); loadPersonas(); } });

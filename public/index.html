@@ -201,8 +201,13 @@
     <p class="hint">Se guarda completa pero en público solo se ven los últimos 4 dígitos.</p>
 
     <label class="lbl">Ubicación <span>(opcional)</span></label>
-    <select class="field" id="pe_pais"></select>
+    <button type="button" class="geo-btn" id="pe_geoBtn">📍 Usar mi ubicación actual</button>
+    <div class="geo-status" id="pe_geoStatus"></div>
+    <select class="field" id="pe_pais" style="margin-top:8px"></select>
     <input class="field" id="pe_ciudad" maxlength="50" placeholder="Ciudad / zona" style="margin-top:8px">
+    <input class="field" id="pe_dir" maxlength="110" placeholder="Dirección o lugar (barrio, calle, refugio…)" style="margin-top:8px">
+    <input class="field" id="pe_ref" maxlength="80" placeholder="Punto de referencia (opcional)" style="margin-top:8px">
+    <p class="hint">Puedes compartir tu ubicación o escribir el lugar. Entre más detalle, más fácil reencontrarse.</p>
 
     <label class="lbl" for="pe_tel">WhatsApp de contacto</label>
     <div class="phone-row">
@@ -265,6 +270,22 @@
       <button class="btn btn-ghost btn-block" data-close>Cancelar</button>
       <button class="btn btn-primary btn-block" id="submitBulk">Subir lista</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal: Bienvenida / elección rápida -->
+<div class="overlay" id="welcomeOverlay">
+  <div class="modal">
+    <button class="x" data-close aria-label="Cerrar">×</button>
+    <h2>¿Qué quieres hacer?</h2>
+    <p class="lead">Elige una opción para empezar rápido. También puedes solo explorar el tablón.</p>
+    <div class="welcome-grid">
+      <button class="wbtn off" data-go="ofrezco"><span class="wic">🤲</span><strong>Ofrezco ayuda</strong><small>Tengo algo para dar</small></button>
+      <button class="wbtn need" data-go="necesito"><span class="wic">🙋</span><strong>Necesito ayuda</strong><small>Me hace falta algo</small></button>
+      <button class="wbtn need" data-go="busca"><span class="wic">🔎</span><strong>Busco a alguien</strong><small>Persona desaparecida</small></button>
+      <button class="wbtn off" data-go="ubicada"><span class="wic">🫶</span><strong>Encontré a alguien</strong><small>Persona ya ubicada</small></button>
+    </div>
+    <div class="modal-actions"><button class="btn btn-ghost btn-block" data-close>Solo explorar el tablón</button></div>
   </div>
 </div>
 
