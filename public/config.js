@@ -14,12 +14,12 @@ window.APP_CONFIG = {
   BRAND:          "Voy por Venezuela",
   EYEBROW:        "Red de ayuda · Emergencia",
   HERO_TITLE:     "Ayudemos a Venezuela",
-  HERO_SUBTITLE:  "Un tablón para reunir suministros y cubrir necesidades en la emergencia. Publica lo que ofreces o lo que necesitas, y se coordina directo por WhatsApp. Sin cuentas, sin registro.",
+  HERO_SUBTITLE:  "Una web para reunir suministros y cubrir necesidades en la emergencia. Publica lo que ofreces o lo que necesitas, y se coordina directo por WhatsApp. Sin cuentas, sin registro.",
 
   // --- Ubicación por defecto ---
   DEFAULT_COUNTRY: "Venezuela",
   DEFAULT_CC:      "58",        // código WhatsApp por defecto (+58 Venezuela)
 
   // --- Comportamiento ---
-  POLL_MS: 20000                // cada cuántos ms refresca el tablón (20s)
+  POLL_MS: 20000                // cada cuántos ms refresca la web (20s)
 };

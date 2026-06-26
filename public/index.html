@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Voy por Venezuela — Ayudemos a Venezuela</title>
-<meta name="description" content="Tablón de ayuda en emergencias: publica lo que ofreces o lo que necesitas y coordina por WhatsApp.">
+<meta name="description" content="Web de ayuda en emergencias: publica lo que ofreces o lo que necesitas y coordina por WhatsApp.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -25,16 +25,31 @@
     </div>
   </header>
 
+  <div class="gsearch-wrap">
+    <input class="field" id="gsearch" type="search" placeholder="🔎 Buscar en todo: nombre de persona, suministro, ciudad…" aria-label="Buscar en todo">
+  </div>
+
   <nav class="panelnav" id="panelNav">
     <button class="pn-btn active" data-panel="ayuda">🤝 Ayuda</button>
     <button class="pn-btn" data-panel="personas">🔎 Personas</button>
   </nav>
 
+  <section id="panelResultados" class="hide">
+    <div class="res-group" id="resPersonasGroup">
+      <h3 class="res-h">🔎 Personas <span class="cnt" id="resPersonasCnt"></span></h3>
+      <div id="resPersonas"></div>
+    </div>
+    <div class="res-group" id="resItemsGroup">
+      <h3 class="res-h">🤝 Suministros <span class="cnt" id="resItemsCnt"></span></h3>
+      <div id="resItems"></div>
+    </div>
+  </section>
+
   <div id="configWarn"></div>
 
   <div class="disclaimer" id="disclaimer">
     <button class="x" onclick="document.getElementById('disclaimer').remove()" aria-label="Cerrar">×</button>
-    <strong>Aviso de responsabilidad.</strong> Este es un espacio comunitario y gratuito, hecho solo para ayudarnos en emergencias. No pedimos registro ni recopilamos datos tuyos: únicamente se publica lo que tú decides escribir, y queda visible para que otras personas puedan contactarte. Al publicar aceptas que esa información (incluido tu WhatsApp) es pública. Por favor, usa el tablón <strong>solo para ayudar</strong>: no para vender, hacer spam, ni dar mal uso a los datos de otras personas. Quienes crearon este tablón no se hacen responsables de los acuerdos ni entregas entre usuarios.
+    <strong>Aviso de responsabilidad.</strong> Este es un espacio comunitario y gratuito, hecho solo para ayudarnos en emergencias. No pedimos registro ni recopilamos datos tuyos: únicamente se publica lo que tú decides escribir, y queda visible para que otras personas puedan contactarte. Al publicar aceptas que esa información (incluido tu WhatsApp) es pública. Por favor, usa esta web <strong>solo para ayudar</strong>: no para vender, hacer spam, ni dar mal uso a los datos de otras personas. Quienes crearon esta web no se hacen responsables de los acuerdos ni entregas entre usuarios.
   </div>
 
   <div id="errBox"></div>
@@ -54,7 +69,7 @@
     </div>
 
     <div class="chips" id="catChips" style="margin-bottom:18px"></div>
-    <div id="board"><div class="loading">Cargando el tablón…</div></div>
+    <div id="board"><div class="loading">Cargando…</div></div>
   </section>
 
   <section id="panelPersonas" class="hide">
@@ -147,7 +162,7 @@
 <div class="overlay" id="codeOverlay">
   <div class="modal">
     <h2 id="codeTitle">✅ ¡Publicado!</h2>
-    <p class="lead" id="codeLead">Tu publicación ya está en el tablón. Guarda este código para administrarla desde otro dispositivo:</p>
+    <p class="lead" id="codeLead">Tu publicación ya está en la web. Guarda este código para administrarla desde otro dispositivo:</p>
     <div class="code-box"><div class="t">Tu código</div><div class="code" id="newCode">—</div></div>
     <p class="hint">En este dispositivo lo recordamos por ti: verás los botones para administrarla directamente en tu publicación.</p>
     <div class="modal-actions"><button class="btn btn-primary btn-block" data-close>Listo</button></div>
@@ -278,14 +293,14 @@
   <div class="modal">
     <button class="x" data-close aria-label="Cerrar">×</button>
     <h2>¿Qué quieres hacer?</h2>
-    <p class="lead">Elige una opción para empezar rápido. También puedes solo explorar el tablón.</p>
+    <p class="lead">Elige una opción para empezar rápido. También puedes solo explorar la web.</p>
     <div class="welcome-grid">
       <button class="wbtn off" data-go="ofrezco"><span class="wic">🤲</span><strong>Ofrezco ayuda</strong><small>Tengo algo para dar</small></button>
       <button class="wbtn need" data-go="necesito"><span class="wic">🙋</span><strong>Necesito ayuda</strong><small>Me hace falta algo</small></button>
       <button class="wbtn need" data-go="busca"><span class="wic">🔎</span><strong>Busco a alguien</strong><small>Persona desaparecida</small></button>
       <button class="wbtn off" data-go="ubicada"><span class="wic">🫶</span><strong>Encontré a alguien</strong><small>Persona ya ubicada</small></button>
     </div>
-    <div class="modal-actions"><button class="btn btn-ghost btn-block" data-close>Solo explorar el tablón</button></div>
+    <div class="modal-actions"><button class="btn btn-ghost btn-block" data-close>Solo explorar la web</button></div>
   </div>
 </div>
 

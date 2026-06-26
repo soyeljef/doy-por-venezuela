@@ -34,7 +34,7 @@ function forgetMine(id){ const m=getMine(); delete m[id]; localStorage.setItem("
 async function loadItems(){
   if(!sb) return;
   const { data, error } = await sb.from("items_public").select("*").order("created_at",{ascending:false}).limit(500);
-  if(error){ showErr("No se pudo leer el tablón. Revisa tu conexión e intenta Actualizar."); return; }
+  if(error){ showErr("No se pudo leer la web. Revisa tu conexión e intenta Actualizar."); return; }
   ITEMS = data || []; clearErr(); rebuildCities(); render();
 }
 async function rpc(name, args){ const { data, error } = await sb.rpc(name, args); if(error) throw error; return data; }
@@ -90,10 +90,11 @@ function updateTally(){
   }
 }
 function render(){
-  const board=$("board");
   updateTally();
+  if(isGlobal()){ renderGlobal(); return; }
+  const board=$("board");
   const list=currentList();
-  if(ITEMS.length===0){ board.innerHTML='<div class="empty"><h3>El tablón está vacío</h3><p>Sé la primera persona en publicar. Toca “Publicar”.</p></div>'; return; }
+  if(ITEMS.length===0){ board.innerHTML='<div class="empty"><h3>La web está vacía</h3><p>Sé la primera persona en publicar. Toca “Publicar”.</p></div>'; return; }
   if(list.length===0){ board.innerHTML='<div class="empty"><h3>Sin resultados</h3><p>Prueba con otra búsqueda, ciudad, categoría o pestaña.</p></div>'; return; }
   board.innerHTML='<div class="grid">'+list.map(i=>cardHTML(i,!!isMine(i.id))).join('')+'</div>';
 }
@@ -170,7 +171,7 @@ function markGone(id){
     ()=>setTaken(id,true));
 }
 function askReopen(id){ pendingAction={type:'reopen',id}; openAsk("Reabrir publicación","Ingresa tu código para volver a marcarla como activa."); }
-function askDelete(id){ askConfirm("¿Borrar tu publicación?","Esto la elimina del tablón para siempre. No se puede deshacer.",()=>doDelete(id)); }
+function askDelete(id){ askConfirm("¿Borrar tu publicación?","Esto la elimina de la web para siempre. No se puede deshacer.",()=>doDelete(id)); }
 async function doDelete(id){
   const code=isMine(id);
   try{ const ok=await rpc("delete_item",{p_id:id,p_code:code}); if(!ok){ showErr("No se pudo borrar (¿código no válido?)."); return; } }
@@ -197,6 +198,7 @@ function currentPersonaList(){
 function renderPersonas(){
   const board=$("perBoard"); if(!board) return;
   if(activePanel==='personas') updateTally();
+  if(isGlobal()){ renderGlobal(); return; }
   const list=currentPersonaList();
   if(PERSONAS.length===0){ board.innerHTML='<div class="empty"><h3>Aún no hay personas</h3><p>Toca “Añadir persona” o “Subir lista” para empezar.</p></div>'; return; }
   if(list.length===0){ board.innerHTML='<div class="empty"><h3>Sin resultados</h3><p>Prueba con otro nombre, ciudad o pestaña.</p></div>'; return; }
@@ -255,6 +257,27 @@ function switchPanel(name){
   $("panelPersonas").classList.toggle("hide",name!=='personas');
   updateTally();
   if(name==='personas'){ renderPersonas(); if(!PERSONAS.length) loadPersonas(); } else render();
+}
+
+/* ---------- Buscador global (suministros + personas) ---------- */
+function isGlobal(){ const el=$("gsearch"); return !!(el && el.value.trim()); }
+function renderGlobal(){
+  const q=$("gsearch").value.trim().toLowerCase();
+  if(!q){ $("panelResultados").classList.add("hide"); $("panelNav").classList.remove("hide"); switchPanel(activePanel); return; }
+  $("panelNav").classList.add("hide");
+  $("panelAyuda").classList.add("hide");
+  $("panelPersonas").classList.add("hide");
+  $("panelResultados").classList.remove("hide");
+  const items=ITEMS.filter(i=>{ const b=(i.titulo+' '+i.ciudad+' '+(i.pais||'')+' '+(i.nombre||'')+' '+catById(i.categoria).label+' '+(i.nota||'')+' '+(i.dir||'')).toLowerCase(); return b.includes(q); });
+  const pers=PERSONAS.filter(p=>{ const b=(p.nombre+' '+(p.ciudad||'')+' '+(p.pais||'')+' '+(p.nota||'')+' '+(p.dir||'')+' '+(p.ref||'')).toLowerCase(); return b.includes(q); });
+  $("resPersonasCnt").textContent='· '+pers.length;
+  $("resItemsCnt").textContent='· '+items.length;
+  $("resPersonas").innerHTML = pers.length
+    ? '<div class="grid">'+pers.map(p=>personaCardHTML(p,!!isMine(p.id))).join('')+'</div>'
+    : '<div class="empty" style="padding:22px"><p>Sin personas para “'+esc(q)+'”.</p></div>';
+  $("resItems").innerHTML = items.length
+    ? '<div class="grid">'+items.map(i=>cardHTML(i,!!isMine(i.id))).join('')+'</div>'
+    : '<div class="empty" style="padding:22px"><p>Sin suministros para “'+esc(q)+'”.</p></div>';
 }
 
 /* ---------- Confirm (heart) modal ---------- */
@@ -370,7 +393,7 @@ $("submitPost").onclick=async()=>{
   $("f_consent").checked=false; $("geoStatus").textContent=""; geo=null;
   btn.disabled=false; btn.textContent="Publicar"; closeAll();
   $("codeTitle").textContent="✅ ¡Publicado!";
-  $("codeLead").textContent="Tu publicación ya está en el tablón. Guarda este código para administrarla desde otro dispositivo:";
+  $("codeLead").textContent="Tu publicación ya está en la web. Guarda este código para administrarla desde otro dispositivo:";
   $("newCode").textContent=code; $("codeOverlay").classList.add("open");
   rebuildCities(); render();
 };
@@ -456,7 +479,7 @@ function initUI(){
   $("eyebrow").textContent=CFG.EYEBROW||"";
   $("heroTitle").textContent=CFG.HERO_TITLE||"";
   $("heroSub").textContent=CFG.HERO_SUBTITLE||"";
-  document.title=(CFG.BRAND||"Tablón")+" — "+(CFG.HERO_TITLE||"");
+  document.title=(CFG.BRAND||"Web")+" — "+(CFG.HERO_TITLE||"");
   // default country / cc
   $("f_pais").innerHTML=PAISES.map(p=>`<option value="${p}">${p}</option>`).join("");
   if(CFG.DEFAULT_COUNTRY) $("f_pais").value=CFG.DEFAULT_COUNTRY;
@@ -510,9 +533,28 @@ function initUI(){
   });
   $("pe_geoBtn").onclick=()=>runGeo("pe_geoStatus",{ciudad:"pe_ciudad",pais:"pe_pais",dir:"pe_dir"},c=>{ personaGeo=c; });
 
+  // --- Buscador global ---
+  $("gsearch").addEventListener("input",renderGlobal);
+  $("panelResultados").addEventListener("click",e=>{
+    const bi=e.target.closest("[data-act]");
+    if(bi){ const id=bi.dataset.id, act=bi.dataset.act;
+      if(act==="wa") contactWA(id);
+      else if(act==="gone") markGone(id, bi.dataset.need==="1");
+      else if(act==="del") askDelete(id);
+      else if(act==="reopen") reopen(id);
+      else if(act==="askreopen") askReopen(id);
+      return; }
+    const bp=e.target.closest("[data-pact]");
+    if(bp){ const id=bp.dataset.id, act=bp.dataset.pact;
+      if(act==="wa") contactPersona(id);
+      else if(act==="ubic") markPersona(id,"ubicada");
+      else if(act==="busca") markPersona(id,"busca");
+      else if(act==="del") askDeletePersona(id); }
+  });
+
   // --- Popup de bienvenida ---
   $("welcomeOverlay").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
-    const go=b.dataset.go; closeAll();
+    const go=b.dataset.go; closeAll(); $("gsearch").value=""; $("panelResultados").classList.add("hide"); $("panelNav").classList.remove("hide");
     if(go==='ofrezco'){ switchPanel('ayuda'); setPostType('ofrezco'); $("postOverlay").classList.add("open"); }
     else if(go==='necesito'){ switchPanel('ayuda'); setPostType('necesito'); $("postOverlay").classList.add("open"); }
     else if(go==='busca'){ switchPanel('personas'); openPersona('busca'); }
@@ -523,7 +565,7 @@ function initUI(){
 function boot(){
   initUI();
   if(!configReady()){
-    $("configWarn").innerHTML='<div class="config-warn"><strong>Falta configurar Supabase.</strong> Abre <code>public/config.js</code> y pega tu <code>SUPABASE_URL</code> y <code>SUPABASE_ANON_KEY</code>. Mientras tanto, el tablón no cargará datos.</div>';
+    $("configWarn").innerHTML='<div class="config-warn"><strong>Falta configurar Supabase.</strong> Abre <code>public/config.js</code> y pega tu <code>SUPABASE_URL</code> y <code>SUPABASE_ANON_KEY</code>. Mientras tanto, la web no cargará datos.</div>';
     $("board").innerHTML='<div class="empty"><h3>Configura Supabase para empezar</h3><p>Sigue el README. Toma 5 minutos.</p></div>';
     return;
   }
