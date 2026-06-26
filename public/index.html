@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doy por Venezuela — Ayudemos a Venezuela</title>
+<meta name="description" content="Tablón de ayuda en emergencias: publica lo que ofreces o lo que necesitas y coordina por WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow" id="eyebrow">Red de ayuda · Emergencia</div>
+    <h1 id="heroTitle">Ayudemos a Venezuela</h1>
+    <p class="sub" id="heroSub"></p>
+    <div class="tally">
+      <div class="stat"><div class="n green" id="countOffer">0</div><div class="l">Se ofrece</div></div>
+      <div class="stat"><div class="n orange" id="countNeed">0</div><div class="l">Se necesita</div></div>
+      <div class="stat"><div class="n taken" id="countTaken">0</div><div class="l">Resueltos</div></div>
+      <div style="flex:1"></div>
+      <button class="btn btn-primary" id="openPost">＋ Publicar</button>
+    </div>
+  </header>
+
+  <div id="configWarn"></div>
+
+  <div class="disclaimer" id="disclaimer">
+    <button class="x" onclick="document.getElementById('disclaimer').remove()" aria-label="Cerrar">×</button>
+    <strong>Aviso de responsabilidad.</strong> Este es un espacio comunitario y gratuito, hecho solo para ayudarnos en emergencias. No pedimos registro ni recopilamos datos tuyos: únicamente se publica lo que tú decides escribir, y queda visible para que otras personas puedan contactarte. Al publicar aceptas que esa información (incluido tu WhatsApp) es pública. Por favor, usa el tablón <strong>solo para ayudar</strong>: no para vender, hacer spam, ni dar mal uso a los datos de otras personas. Quienes crearon este tablón no se hacen responsables de los acuerdos ni entregas entre usuarios.
+  </div>
+
+  <div id="errBox"></div>
+
+  <div class="segment" id="typeSeg">
+    <button class="seg-btn active" data-type="">Todo</button>
+    <button class="seg-btn" data-type="ofrezco">🤲 Se ofrece</button>
+    <button class="seg-btn" data-type="necesito">🙋 Se necesita</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="grow"><input class="field" id="search" type="search" placeholder="Buscar: agua, cobijas, Caracas…" aria-label="Buscar"></div>
+    <select class="field" id="cityFilter" style="flex:0 0 170px" aria-label="Filtrar por ciudad"><option value="">Todas las ciudades</option></select>
+    <label class="toggle"><input type="checkbox" id="hideTaken"> Ocultar resueltos</label>
+    <button class="btn btn-ghost btn-sm" id="refresh" title="Actualizar">↻ Actualizar</button>
+  </div>
+
+  <div class="chips" id="catChips" style="margin-bottom:18px"></div>
+  <div id="board"><div class="loading">Cargando el tablón…</div></div>
+
+  <footer>
+    Hecho para ayudarnos entre todos. Lo que publiques es público: cualquiera con el enlace verá el ítem, la ubicación y el teléfono de contacto. No almacenamos información tuya más allá de lo que voluntariamente publicas.
+    <div class="credit">Creado sin ánimo de lucro ni ningún fin comercial por <strong>Jef</strong> · <a href="https://instagram.com/soyeljef" target="_blank" rel="noopener">@soyeljef</a></div>
+  </footer>
+</div>
+
+<!-- Modal: Publicar -->
+<div class="overlay" id="postOverlay">
+  <div class="modal">
+    <button class="x" data-close aria-label="Cerrar">×</button>
+    <h2 id="postTitle">Publicar</h2>
+    <p class="lead">Elige si vas a ofrecer ayuda o si la necesitas.</p>
+    <div class="typepick">
+      <button id="pickOffer" class="sel-offer" data-type="ofrezco">🤲 Ofrezco<small>Tengo algo disponible</small></button>
+      <button id="pickNeed" data-type="necesito">🙋 Necesito<small>Requiero ayuda</small></button>
+    </div>
+
+    <label class="lbl">Categoría</label>
+    <select class="field" id="f_cat"></select>
+
+    <div id="ropaWrap" class="hide">
+      <label class="lbl">¿Ropa para quién?</label>
+      <select class="field" id="f_ropa"><option value="Niños">Niños</option><option value="Adultos">Adultos</option><option value="Niños y adultos">Niños y adultos</option></select>
+    </div>
+
+    <label class="lbl" for="f_titulo" id="lblTitulo">¿Qué tienes disponible?</label>
+    <input class="field" id="f_titulo" maxlength="70" placeholder="Ej: Cobijas, agua, kit de aseo">
+
+    <label class="lbl" for="f_cantidad" id="lblCantidad">Cantidad <span>(opcional)</span></label>
+    <input class="field" id="f_cantidad" maxlength="40" placeholder="Ej: 20 unidades · 5 cajas · varias">
+
+    <label class="lbl">Ubicación</label>
+    <button type="button" class="geo-btn" id="geoBtn">📍 Usar mi ubicación actual</button>
+    <div class="geo-status" id="geoStatus"></div>
+    <select class="field" id="f_pais" style="margin-top:8px"></select>
+    <input class="field" id="f_ciudad" maxlength="50" placeholder="Ciudad" style="margin-top:8px">
+    <input class="field" id="f_dir" maxlength="110" placeholder="Dirección o lugar (barrio, calle, punto de referencia)" style="margin-top:8px">
+    <p class="hint" id="dirHint">Entre más exacta la dirección, más fácil coordinar la entrega.</p>
+
+    <label class="lbl" for="f_tel">WhatsApp de contacto</label>
+    <div class="phone-row">
+      <select class="field" id="f_cc" aria-label="Código de país">
+        <option value="58">🇻🇪 +58</option><option value="57">🇨🇴 +57</option><option value="52">🇲🇽 +52</option>
+        <option value="34">🇪🇸 +34</option><option value="51">🇵🇪 +51</option><option value="54">🇦🇷 +54</option>
+        <option value="56">🇨🇱 +56</option><option value="593">🇪🇨 +593</option><option value="1">🇺🇸 +1</option>
+      </select>
+      <input class="field grow" id="f_tel" inputmode="numeric" maxlength="15" placeholder="412 123 4567">
+    </div>
+    <p class="hint">Solo números. Ahí llegarán los mensajes de quien te contacte.</p>
+
+    <label class="lbl" for="f_nombre">Tu nombre <span>(opcional)</span></label>
+    <input class="field" id="f_nombre" maxlength="40" placeholder="Ej: Jefferson">
+
+    <label class="lbl" for="f_nota">Nota <span>(opcional)</span></label>
+    <textarea class="field" id="f_nota" rows="2" maxlength="160" placeholder="Ej: Puedo entregar hasta el viernes"></textarea>
+
+    <label class="consent"><input type="checkbox" id="f_consent">Entiendo que lo que publico es público y me comprometo a usar este espacio solo para ayudar.</label>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" data-close>Cancelar</button>
+      <button class="btn btn-primary btn-block" id="submitPost">Publicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Código -->
+<div class="overlay" id="codeOverlay">
+  <div class="modal">
+    <h2>✅ ¡Publicado!</h2>
+    <p class="lead">Tu publicación ya está en el tablón. Guarda este código para administrarla desde otro dispositivo:</p>
+    <div class="code-box"><div class="t">Tu código</div><div class="code" id="newCode">—</div></div>
+    <p class="hint">En este dispositivo lo recordamos por ti: verás los botones para administrarla directamente en tu publicación.</p>
+    <div class="modal-actions"><button class="btn btn-primary btn-block" data-close>Listo</button></div>
+  </div>
+</div>
+
+<!-- Modal: Confirmar (corazón) -->
+<div class="overlay" id="confirmOverlay">
+  <div class="modal">
+    <div class="heart">💛</div>
+    <h2 id="cTitle" style="text-align:center">¿Quitar esto de la lista?</h2>
+    <p class="lead" id="cMsg" style="text-align:center"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" data-close>Cancelar</button>
+      <button class="btn btn-primary btn-block" id="cYes">Sí, confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Pedir código -->
+<div class="overlay" id="askOverlay">
+  <div class="modal">
+    <button class="x" data-close aria-label="Cerrar">×</button>
+    <h2 id="askTitle">Reabrir publicación</h2>
+    <p class="lead" id="askLead">Ingresa el código que recibiste al publicar.</p>
+    <input class="field" id="askCode" maxlength="6" placeholder="Código" style="text-transform:uppercase;letter-spacing:.2em;text-align:center;font-weight:700">
+    <div id="askErr" class="hint" style="color:#c0392b"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-block" data-close>Cancelar</button>
+      <button class="btn btn-primary btn-block" id="askConfirm">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script src="./config.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
