@@ -3,9 +3,9 @@
   "cleanUrls": true,
   "redirects": [
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "has": [{ "type": "host", "value": "(www\\.)?voyporvenezuela\\.com" }],
-      "destination": "https://juntosayudando.com/:path*",
+      "destination": "https://juntosayudando.com/$1",
       "permanent": true
     }
   ]
