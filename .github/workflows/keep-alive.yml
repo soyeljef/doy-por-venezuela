@@ -1,0 +1,42 @@
+name: Mantener Supabase despierto
+
+# Los proyectos gratuitos de Supabase se PAUSAN tras ~7 dias sin peticiones a la API.
+# Cuando eso pasa la web sigue cargando pero no muestra ningun dato: el host deja de
+# resolver en DNS y el tablon aparece vacio con "No se pudo leer la web".
+# Este workflow hace una lectura trivial cada 3 dias para que nunca se pause.
+#
+# La clave de abajo es la anon/publishable: ya es publica por diseno (se sirve en
+# config.js a cualquiera que abra la web) y solo permite leer las vistas publicas.
+# NO pongas aqui nunca la service_role.
+
+on:
+  schedule:
+    - cron: "0 9 */3 * *"   # cada 3 dias a las 09:00 UTC
+  workflow_dispatch:         # y a mano desde la pestana Actions
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Leer items_public y personas_public
+        run: |
+          BASE="https://undnvfgmwljzuaqlbnhr.supabase.co/rest/v1"
+          KEY="sb_publishable_ykB6FtAA1c5IAp9RP2DFDA_RwPMeLfV"
+          fail=0
+          for view in items_public personas_public; do
+            code=$(curl -s -o /dev/null -m 30 -w "%{http_code}" \
+              "$BASE/$view?select=id&limit=1" -H "apikey: $KEY")
+            echo "$view -> HTTP $code"
+            [ "$code" = "200" ] || fail=1
+          done
+          if [ "$fail" = "1" ]; then
+            echo "::error::Supabase no responde 200. Puede estar pausado: entra a supabase.com/dashboard y pulsa Restore."
+            exit 1
+          fi
+          echo "Supabase despierto."
+
+      - name: Comprobar que la web responde
+        run: |
+          code=$(curl -s -o /dev/null -m 30 -w "%{http_code}" https://juntosayudando.com/)
+          echo "juntosayudando.com -> HTTP $code"
+          [ "$code" = "200" ] || { echo "::error::La web no responde 200."; exit 1; }
