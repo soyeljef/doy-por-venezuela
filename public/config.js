@@ -18,8 +18,9 @@ window.APP_CONFIG = {
 
   // --- Ubicación por defecto ---
   // Solo son la preselección de los formularios: la web funciona en cualquier país.
-  DEFAULT_COUNTRY: "Venezuela",
-  DEFAULT_CC:      "58",        // código WhatsApp preseleccionado (+58)
+  // Si el navegador detecta otro país (por zona horaria), ese tiene prioridad.
+  DEFAULT_COUNTRY: "Colombia",
+  DEFAULT_CC:      "57",        // código WhatsApp preseleccionado (+57)
 
   // --- Personas (buscar / encontrar) ---
   // Se busca y se ubica gente sobre todo desde Colombia, así que ese panel

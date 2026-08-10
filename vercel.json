@@ -1,4 +1,12 @@
 {
   "outputDirectory": "public",
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "(www\\.)?voyporvenezuela\\.com" }],
+      "destination": "https://juntosayudando.com/:path*",
+      "permanent": true
+    }
+  ]
 }

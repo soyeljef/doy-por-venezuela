@@ -11,8 +11,46 @@ const CATS = [
   {id:"transp",label:"Transporte",emoji:"🚚"},{id:"acopio",label:"Punto de acopio",emoji:"📍"},
   {id:"otros",label:"Otro",emoji:"📦"},
 ];
-const PAISES = ["Venezuela","Colombia","México","España","Perú","Argentina","Chile","Ecuador","Bolivia","Panamá","República Dominicana","Estados Unidos","Otro"];
+const PAISES = ["Colombia","Venezuela","México","España","Perú","Argentina","Chile","Ecuador","Bolivia","Panamá","República Dominicana","Estados Unidos","Otro"];
 const catById = id => CATS.find(c=>c.id===id) || CATS[CATS.length-1];
+
+/* ---------- Deteccion automatica del pais ----------
+   Usa la zona horaria del dispositivo y, si no la reconoce, el idioma del navegador.
+   Es 100% local: NO se envia la IP ni ningun dato a ningun servidor externo, que seria
+   incoherente con la promesa de la web ("no recopilamos datos tuyos") y ademas expondria
+   a gente que puede estar en situacion vulnerable.
+   Solo preselecciona el pais y el prefijo; el usuario siempre puede cambiarlos. */
+const TZ_ISO = {
+  "America/Bogota":"CO","America/Caracas":"VE","America/Lima":"PE","America/La_Paz":"BO",
+  "America/Mexico_City":"MX","America/Monterrey":"MX","America/Tijuana":"MX","America/Cancun":"MX","America/Merida":"MX",
+  "Europe/Madrid":"ES","Atlantic/Canary":"ES",
+  "America/Argentina/Buenos_Aires":"AR","America/Argentina/Cordoba":"AR","America/Argentina/Mendoza":"AR","America/Argentina/Salta":"AR",
+  "America/Santiago":"CL","America/Punta_Arenas":"CL",
+  "America/Guayaquil":"EC","Pacific/Galapagos":"EC",
+  "America/Panama":"PA","America/Santo_Domingo":"DO",
+  "America/New_York":"US","America/Chicago":"US","America/Denver":"US","America/Los_Angeles":"US",
+  "America/Phoenix":"US","America/Detroit":"US","America/Anchorage":"US","Pacific/Honolulu":"US"
+};
+// [nombre en PAISES, prefijo si existe en los selectores de la web]
+const ISO_INFO = {
+  CO:["Colombia","57"], VE:["Venezuela","58"], MX:["México","52"], ES:["España","34"],
+  PE:["Perú","51"], AR:["Argentina","54"], CL:["Chile","56"], EC:["Ecuador","593"],
+  US:["Estados Unidos","1"], DO:["República Dominicana","1"],
+  BO:["Bolivia",""], PA:["Panamá",""]   // sin prefijo propio en el selector: solo se fija el pais
+};
+function detectCountry(){
+  try{
+    const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if(tz && TZ_ISO[tz]) return ISO_INFO[TZ_ISO[tz]];
+  }catch(e){}
+  try{
+    const loc=(navigator.languages&&navigator.languages[0])||navigator.language||"";
+    const reg=(loc.split("-")[1]||"").toUpperCase();
+    if(reg && ISO_INFO[reg]) return ISO_INFO[reg];
+  }catch(e){}
+  return null;
+}
+const GEO = detectCountry();   // ["Colombia","57"] o null si no se reconoce
 const WA_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 018.413 3.488 11.82 11.82 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zM6.597 20.13c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.82 9.82 0 001.523 5.26l-.999 3.648 3.965-1.607zM17.5 14.92c-.075-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>';
 
 let ITEMS=[], filterCat="", filterType="", postType="ofrezco", pendingAction=null, confirmCb=null, sb=null, geo=null;
@@ -47,6 +85,12 @@ async function loadPersonas(){
 
 /* ---------- Helpers ---------- */
 function $(id){ return document.getElementById(id); }
+// Fija el valor de un <select> solo si esa opcion existe; si no, lo deja como estaba.
+function setSel(id,val){
+  if(!val) return;
+  const el=$(id); if(!el) return;
+  if([...el.options].some(o=>o.value===String(val))) el.value=String(val);
+}
 function showErr(m){ $("errBox").innerHTML = '<div class="err">'+m+'</div>'; }
 function clearErr(){ $("errBox").innerHTML=""; }
 function esc(s){ return (s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -408,10 +452,11 @@ function setPersonaEstado(t){
 // Se reaplica al abrir el modal salvo que el usuario ya lo haya cambiado a mano.
 let personaLocTouched=false;
 function applyPersonaDefaults(){
-  const pais=CFG.PERSONAS_COUNTRY||CFG.DEFAULT_COUNTRY;
-  const cc=CFG.PERSONAS_CC||CFG.DEFAULT_CC;
-  if(pais && [...$("pe_pais").options].some(o=>o.value===pais)) $("pe_pais").value=pais;
-  if(cc) ["pe_cc","bk_cc"].forEach(id=>{ if([...$(id).options].some(o=>o.value===String(cc))) $(id).value=String(cc); });
+  // Prioridad: pais detectado por el navegador > Colombia (config) > default global
+  const pais=(GEO&&GEO[0])||CFG.PERSONAS_COUNTRY||CFG.DEFAULT_COUNTRY;
+  const cc  =(GEO&&GEO[1])||CFG.PERSONAS_CC||CFG.DEFAULT_CC;
+  setSel("pe_pais",pais);
+  ["pe_cc","bk_cc"].forEach(id=>setSel(id,cc));
 }
 function openPersona(estado){
   setPersonaEstado(estado||'busca');
@@ -496,8 +541,9 @@ function initUI(){
   document.title=(CFG.BRAND||"Web")+" — "+(CFG.HERO_TITLE||"");
   // default country / cc
   $("f_pais").innerHTML=PAISES.map(p=>`<option value="${p}">${p}</option>`).join("");
-  if(CFG.DEFAULT_COUNTRY) $("f_pais").value=CFG.DEFAULT_COUNTRY;
-  if(CFG.DEFAULT_CC){ const o=[...$("f_cc").options].find(x=>x.value===String(CFG.DEFAULT_CC)); if(o) $("f_cc").value=String(CFG.DEFAULT_CC); }
+  // Pais detectado por el navegador; si no se reconoce, el de config.js
+  setSel("f_pais",(GEO&&GEO[0])||CFG.DEFAULT_COUNTRY);
+  setSel("f_cc",  (GEO&&GEO[1])||CFG.DEFAULT_CC);
   // categories
   $("f_cat").innerHTML=CATS.map(c=>`<option value="${c.id}">${c.emoji} ${c.label}</option>`).join("");
   $("f_cat").addEventListener("change",updateRopa);

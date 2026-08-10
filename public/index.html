@@ -26,8 +26,15 @@
   <header class="top">
     <a class="brand" href="/" aria-label="Juntos Ayudando — ir al inicio">
       <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-        <path transform="translate(-2 0)" fill="#0F5C4A" d="M32 54C20 45 8 35 8 23C8 15 15 10 22 10C27 10 31 13 32 17Z"/>
-        <path transform="translate(2 0)" fill="#DD5B27" d="M32 54C44 45 56 35 56 23C56 15 49 10 42 10C37 10 33 13 32 17Z"/>
+        <defs><clipPath id="jaHeart">
+          <path transform="translate(-2 0)" d="M32 54C20 45 8 35 8 23C8 15 15 10 22 10C27 10 31 13 32 17Z"/>
+          <path transform="translate(2 0)"  d="M32 54C44 45 56 35 56 23C56 15 49 10 42 10C37 10 33 13 32 17Z"/>
+        </clipPath></defs>
+        <g clip-path="url(#jaHeart)">
+          <rect y="10" width="64" height="22" fill="#FCD116"/>
+          <rect y="32" width="64" height="11" fill="#003893"/>
+          <rect y="43" width="64" height="11" fill="#CE1126"/>
+        </g>
       </svg>
       <span class="brand-name" id="brandName">Juntos Ayudando</span>
     </a>
@@ -153,7 +160,7 @@
     <label class="lbl" for="f_tel">WhatsApp de contacto</label>
     <div class="phone-row">
       <select class="field" id="f_cc" aria-label="Código de país">
-        <option value="58">🇻🇪 +58</option><option value="57">🇨🇴 +57</option><option value="52">🇲🇽 +52</option>
+        <option value="57">🇨🇴 +57</option><option value="58">🇻🇪 +58</option><option value="52">🇲🇽 +52</option>
         <option value="34">🇪🇸 +34</option><option value="51">🇵🇪 +51</option><option value="54">🇦🇷 +54</option>
         <option value="56">🇨🇱 +56</option><option value="593">🇪🇨 +593</option><option value="1">🇺🇸 +1</option>
       </select>
