@@ -1,5 +1,5 @@
 // ============================================================
-//  Doy por Venezuela — Lógica de la app (Supabase)
+//  Juntos Ayudando — Lógica de la app (Supabase)
 // ============================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -404,7 +404,20 @@ function setPersonaEstado(t){
   $("pickBusca").className=t==='busca'?'sel-need':'';
   $("pickUbic").className=t==='ubicada'?'sel-offer':'';
 }
-function openPersona(estado){ setPersonaEstado(estado||'busca'); $("personaOverlay").classList.add("open"); }
+// Personas se busca/ubica sobre todo desde Colombia: es el pais y prefijo por defecto.
+// Se reaplica al abrir el modal salvo que el usuario ya lo haya cambiado a mano.
+let personaLocTouched=false;
+function applyPersonaDefaults(){
+  const pais=CFG.PERSONAS_COUNTRY||CFG.DEFAULT_COUNTRY;
+  const cc=CFG.PERSONAS_CC||CFG.DEFAULT_CC;
+  if(pais && [...$("pe_pais").options].some(o=>o.value===pais)) $("pe_pais").value=pais;
+  if(cc) ["pe_cc","bk_cc"].forEach(id=>{ if([...$(id).options].some(o=>o.value===String(cc))) $(id).value=String(cc); });
+}
+function openPersona(estado){
+  setPersonaEstado(estado||'busca');
+  if(!personaLocTouched) applyPersonaDefaults();
+  $("personaOverlay").classList.add("open");
+}
 $("submitPersona").onclick=async()=>{
   const nombre=$("pe_nombre").value.trim();
   const tel=$("pe_tel").value.replace(/\D/g,"");
@@ -476,6 +489,7 @@ $("submitBulk").onclick=async()=>{
 function closeAll(){ document.querySelectorAll(".overlay").forEach(o=>o.classList.remove("open")); }
 function initUI(){
   // brand from config
+  if($("brandName")) $("brandName").textContent=CFG.BRAND||"";
   $("eyebrow").textContent=CFG.EYEBROW||"";
   $("heroTitle").textContent=CFG.HERO_TITLE||"";
   $("heroSub").textContent=CFG.HERO_SUBTITLE||"";
@@ -510,14 +524,15 @@ function initUI(){
 
   // --- Panel "Personas" ---
   $("pe_pais").innerHTML=PAISES.map(p=>`<option value="${p}">${p}</option>`).join("");
-  if(CFG.DEFAULT_COUNTRY) $("pe_pais").value=CFG.DEFAULT_COUNTRY;
-  if(CFG.DEFAULT_CC){ [["pe_cc"],["bk_cc"]].forEach(([id])=>{ const o=[...$(id).options].find(x=>x.value===String(CFG.DEFAULT_CC)); if(o) $(id).value=String(CFG.DEFAULT_CC); }); }
+  applyPersonaDefaults();
+  // Si el usuario elige otro pais/prefijo, respetamos su eleccion el resto de la sesion
+  ["pe_pais","pe_cc","bk_cc"].forEach(id=>$(id).addEventListener("change",()=>{ personaLocTouched=true; }));
   $("panelNav").querySelectorAll(".pn-btn").forEach(b=>b.onclick=()=>switchPanel(b.dataset.panel));
   const pseg=$("perSeg");
   pseg.querySelectorAll(".seg-btn").forEach(b=>b.onclick=()=>{ perFilter=b.dataset.pe; pseg.querySelectorAll(".seg-btn").forEach(x=>x.classList.remove("active","need")); b.classList.add("active"); if(b.dataset.pe==='busca') b.classList.add("need"); renderPersonas(); });
   ["perSearch","perCityFilter"].forEach(id=>$(id).addEventListener("input",renderPersonas));
   $("perRefresh").onclick=loadPersonas;
-  $("openBulk").onclick=()=>{ setBulkEstado("busca"); updateBulkCount(); $("bulkOverlay").classList.add("open"); };
+  $("openBulk").onclick=()=>{ setBulkEstado("busca"); if(!personaLocTouched) applyPersonaDefaults(); updateBulkCount(); $("bulkOverlay").classList.add("open"); };
   $("pickBusca").onclick=()=>setPersonaEstado("busca");
   $("pickUbic").onclick=()=>setPersonaEstado("ubicada");
   $("bkBusca").onclick=()=>setBulkEstado("busca");

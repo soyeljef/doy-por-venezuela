@@ -1,13 +1,14 @@
 # Contexto para Claude Code
 
 ## Qué es
-"Doy por Venezuela" — tablón web de ayuda mutua para emergencias. Sin login.
+"Juntos Ayudando" — web de ayuda mutua para emergencias. Sin login.
 La gente publica lo que **ofrece** o lo que **necesita**; se coordina por WhatsApp.
 
 ## Stack
 - Frontend estático: `public/` (HTML + CSS + JS vanilla, módulos ES). Sin build.
 - Backend: **Supabase** (Postgres). El cliente usa `@supabase/supabase-js` desde esm.sh.
-- Hosting objetivo: **Cloudflare Pages** (output dir = `public`). Vercel/Netlify también valen.
+- Hosting real: **Vercel** (proyecto `doy-por-venezuela`, output dir = `public`, ver `vercel.json`).
+  Dominio en producción: `juntosayudando.com`. El dominio anterior `voyporvenezuela.com` redirige.
 
 ## Reglas de datos (importante)
 - La app LEE de la vista `items_public` (no incluye el campo privado `code`).
@@ -32,7 +33,7 @@ La gente publica lo que **ofrece** o lo que **necesita**; se coordina por WhatsA
 
 ## Tareas típicas que pueden pedirte
 - Conectar Supabase: pedir URL + anon key y ponerlas en `config.js`.
-- Desplegar: `wrangler pages deploy public --project-name=doy-por-venezuela`.
+- Desplegar: `vercel --prod` desde la raíz del repo (o `git push`, que auto-despliega).
 - Añadir un campo nuevo: tocar `schema.sql` (tabla + vista + función publish), `index.html` (input),
   `app.js` (leerlo en submitPost y mostrarlo en `cardHTML`).
 - Cambiar idioma/marca para otro desastre: solo `config.js`.

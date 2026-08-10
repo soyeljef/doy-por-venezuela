@@ -1,5 +1,5 @@
 -- ============================================================
---  Doy por Venezuela — Esquema de base de datos (Supabase)
+--  Juntos Ayudando — Esquema de base de datos (Supabase)
 --  Ejecuta TODO este archivo en:  Supabase > SQL Editor > New query > Run
 -- ============================================================
 

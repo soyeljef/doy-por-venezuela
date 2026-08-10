@@ -8,6 +8,10 @@ body{background:var(--paper);color:var(--ink);font-family:"Figtree",system-ui,sa
   -webkit-font-smoothing:antialiased;background-image:radial-gradient(rgba(21,35,31,.035) 1px,transparent 1px);background-size:22px 22px}
 .wrap{max-width:1080px;margin:0 auto;padding:20px 18px 80px}
 header.top{padding:26px 0 16px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.brand{display:inline-flex;align-items:center;gap:9px;text-decoration:none;margin-bottom:16px}
+.brand-mark{width:28px;height:28px;flex-shrink:0;display:block}
+.brand-name{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:19px;letter-spacing:-.025em;color:var(--ink)}
+.brand:hover .brand-name{color:var(--pine)}
 .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--pine);font-weight:700}
 h1{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.02em;line-height:1.02;font-size:clamp(30px,6vw,52px);margin:8px 0 6px}
 .sub{color:var(--muted);max-width:52ch;margin:0}

@@ -1,4 +1,4 @@
-# Doy por Venezuela — Tablón de Ayuda en Emergencias
+# Juntos Ayudando — Red de Ayuda Mutua en Emergencias
 
 App web ligera para reunir suministros y necesidades durante un desastre natural.
 La gente publica **lo que ofrece** o **lo que necesita** (categoría, ubicación, WhatsApp)
@@ -52,7 +52,7 @@ python3 -m http.server 5173
 ```bash
 npm install -g wrangler
 wrangler login
-wrangler pages deploy public --project-name=doy-por-venezuela
+wrangler pages deploy public --project-name=juntos-ayudando
 ```
 
 **Opción B — desde GitHub (auto-deploy):**
@@ -61,7 +61,7 @@ wrangler pages deploy public --project-name=doy-por-venezuela
 3. Build command: *(vacío)* · Output directory: `public`.
 4. Deploy. Cada `git push` vuelve a publicar.
 
-**Dominio propio:** en el proyecto de Pages → **Custom domains** → agrega `doyporvenezuela.com`
+**Dominio propio:** en el proyecto de Pages → **Custom domains** → agrega `juntosayudando.com`
 (si compraste el dominio en Cloudflare Registrar, se conecta solo).
 
 ### Alternativa: Vercel
@@ -92,7 +92,7 @@ vercel --prod
 ## Estructura
 
 ```
-doy-por-venezuela/
+juntos-ayudando/
 ├── public/
 │   ├── index.html      # estructura
 │   ├── styles.css      # estilos

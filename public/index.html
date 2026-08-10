@@ -3,8 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Voy por Venezuela — Ayudemos a Venezuela</title>
-<meta name="description" content="Web de ayuda en emergencias: publica lo que ofreces o lo que necesitas y coordina por WhatsApp.">
+<title>Juntos Ayudando — Red de ayuda mutua en emergencias</title>
+<meta name="description" content="Publica lo que ofreces, lo que necesitas o a quién buscas durante una emergencia, y coordina directo por WhatsApp. Sin cuentas, sin registro.">
+<link rel="canonical" href="https://juntosayudando.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://juntosayudando.com/">
+<meta property="og:site_name" content="Juntos Ayudando">
+<meta property="og:title" content="Juntos Ayudando — Red de ayuda mutua en emergencias">
+<meta property="og:description" content="Publica lo que ofreces, lo que necesitas o a quién buscas durante una emergencia, y coordina directo por WhatsApp. Sin cuentas, sin registro.">
+<meta property="og:image" content="https://juntosayudando.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0F5C4A">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,8 +24,15 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="eyebrow" id="eyebrow">Red de ayuda · Emergencia</div>
-    <h1 id="heroTitle">Ayudemos a Venezuela 🇻🇪❤️</h1>
+    <a class="brand" href="/" aria-label="Juntos Ayudando — ir al inicio">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <path transform="translate(-2 0)" fill="#0F5C4A" d="M32 54C20 45 8 35 8 23C8 15 15 10 22 10C27 10 31 13 32 17Z"/>
+        <path transform="translate(2 0)" fill="#DD5B27" d="M32 54C44 45 56 35 56 23C56 15 49 10 42 10C37 10 33 13 32 17Z"/>
+      </svg>
+      <span class="brand-name" id="brandName">Juntos Ayudando</span>
+    </a>
+    <div class="eyebrow" id="eyebrow">Red de ayuda mutua · Emergencias</div>
+    <h1 id="heroTitle">Ayudémonos entre todos 🤝</h1>
     <p class="sub" id="heroSub"></p>
     <div class="tally">
       <div class="stat"><div class="n green" id="countOffer">0</div><div class="l" id="lblStat1">Se ofrece</div></div>
@@ -227,7 +245,7 @@
     <label class="lbl" for="pe_tel">WhatsApp de contacto</label>
     <div class="phone-row">
       <select class="field" id="pe_cc" aria-label="Código de país">
-        <option value="58">🇻🇪 +58</option><option value="57">🇨🇴 +57</option><option value="52">🇲🇽 +52</option>
+        <option value="57">🇨🇴 +57</option><option value="58">🇻🇪 +58</option><option value="52">🇲🇽 +52</option>
         <option value="34">🇪🇸 +34</option><option value="51">🇵🇪 +51</option><option value="54">🇦🇷 +54</option>
         <option value="56">🇨🇱 +56</option><option value="593">🇪🇨 +593</option><option value="1">🇺🇸 +1</option>
       </select>
@@ -268,7 +286,7 @@
     <label class="lbl">Ubicación común <span>(opcional, se aplica a todas)</span></label>
     <div class="phone-row">
       <select class="field" id="bk_cc" style="flex:0 0 92px" aria-label="Código de país">
-        <option value="58">🇻🇪 +58</option><option value="57">🇨🇴 +57</option><option value="52">🇲🇽 +52</option>
+        <option value="57">🇨🇴 +57</option><option value="58">🇻🇪 +58</option><option value="52">🇲🇽 +52</option>
         <option value="34">🇪🇸 +34</option><option value="51">🇵🇪 +51</option><option value="54">🇦🇷 +54</option>
         <option value="56">🇨🇱 +56</option><option value="593">🇪🇨 +593</option><option value="1">🇺🇸 +1</option>
       </select>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Juntos Ayudando">
+  <title>Juntos Ayudando</title>
+  <!-- Corazon partido en dos mitades que se juntan: dos personas, una sola ayuda -->
+  <g transform="translate(32 32) scale(1.12) translate(-32 -32)">
+    <path transform="translate(-2 0)" fill="#0F5C4A"
+          d="M32 54C20 45 8 35 8 23C8 15 15 10 22 10C27 10 31 13 32 17Z"/>
+    <path transform="translate(2 0)" fill="#DD5B27"
+          d="M32 54C44 45 56 35 56 23C56 15 49 10 42 10C37 10 33 13 32 17Z"/>
+  </g>
+</svg>
