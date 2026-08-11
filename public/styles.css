@@ -33,7 +33,10 @@ header.top{padding:26px 0 16px;border-bottom:1px solid var(--line);margin-bottom
 .donate{display:flex;gap:20px;align-items:center;background:var(--pine-soft);border:1px solid var(--line);
   border-left:4px solid var(--pine);border-radius:14px;padding:18px 20px;margin:0 0 18px;flex-wrap:wrap}
 .donate-qr{background:#fff;border-radius:12px;padding:10px;box-shadow:var(--shadow);flex:0 0 auto}
-.donate-qr img{display:block;width:132px;height:132px;object-fit:contain}
+.donate-qr img{display:block;width:160px;height:160px;object-fit:contain}
+/* En el banner el QR se puede pulsar para verlo grande en el modal */
+#donateBanner .donate-qr{cursor:zoom-in;border:none;background:#fff;transition:transform .12s}
+#donateBanner .donate-qr:hover{transform:translateY(-2px)}
 .donate-qr.big{margin:14px auto;padding:14px}
 .donate-qr.big img{width:210px;height:210px}
 .donate-body{flex:1 1 300px;min-width:0}

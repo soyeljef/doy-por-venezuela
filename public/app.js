@@ -653,7 +653,12 @@ function initBrandBlocks(){
     im.onerror=()=>{ if(box) box.hidden=true; };
     im.src=d.QR; im.alt="Código QR para donar a "+(d.ORG||"");
   });
-  if($("donateBanner")) $("donateBanner").hidden=false;
+  if($("donateBanner")){
+    $("donateBanner").hidden=false;
+    // Pulsar el QR del banner lo abre grande en el modal (mas facil de escanear)
+    const caja=$("donateBanner").querySelector(".donate-qr");
+    if(caja) caja.onclick=()=>$("donateOverlay").classList.add("open");
+  }
   if($("wDonate")) $("wDonate").hidden=false;
 }
 
