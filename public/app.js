@@ -539,6 +539,7 @@ function initUI(){
   $("heroTitle").textContent=CFG.HERO_TITLE||"";
   $("heroSub").textContent=CFG.HERO_SUBTITLE||"";
   document.title=(CFG.BRAND||"Web")+" — "+(CFG.HERO_TITLE||"");
+  initBrandBlocks();
   // default country / cc
   $("f_pais").innerHTML=PAISES.map(p=>`<option value="${p}">${p}</option>`).join("");
   // Pais detectado por el navegador; si no se reconoce, el de config.js
@@ -620,7 +621,40 @@ function initUI(){
     else if(go==='necesito'){ switchPanel('ayuda'); setPostType('necesito'); $("postOverlay").classList.add("open"); }
     else if(go==='busca'){ switchPanel('personas'); openPersona('busca'); }
     else if(go==='ubicada'){ switchPanel('personas'); openPersona('ubicada'); }
+    else if(go==='donar'){ $("donateOverlay").classList.add("open"); }
   });
+}
+
+/* ---------- Bloques opcionales por marca (Apoya / Donación) ---------- */
+function initBrandBlocks(){
+  if($("credit")) $("credit").innerHTML=CFG.CREDIT||"";
+
+  const s=CFG.SUPPORT;
+  if(s && s.LOGO && $("supportBox")){
+    $("supportLbl").textContent=s.LABEL||"Apoya";
+    const img=$("supportLogo"); img.src=s.LOGO; img.alt=s.ALT||"";
+    $("supportBox").hidden=false;
+  }
+
+  const d=CFG.DONATION;
+  if(!d) return;
+  const filas=[["Entidad",d.ORG],["NIT",d.NIT],["Banco",d.BANCO],["Tipo de cuenta",d.TIPO],
+    ["Cuenta (16 dígitos)",d.CUENTA_16],["Cuenta (10 dígitos)",d.CUENTA_10],["Cuenta (9 dígitos)",d.CUENTA_9]]
+    .filter(f=>f[1]).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+  ["donateData","donateData2"].forEach(id=>{ if($(id)) $(id).innerHTML=filas; });
+  ["donateNote","donateNote2"].forEach(id=>{ if($(id)) $(id).textContent=d.NOTA||""; });
+  ["donateOrg","donateOrg2"].forEach(id=>{ if($(id)) $(id).textContent=d.ORG||""; });
+  ["donateQR","donateQR2"].forEach(id=>{
+    const im=$(id); if(!im) return;
+    const box=im.closest(".donate-qr");
+    // Si no hay QR configurado o el archivo falta, se ocultan el hueco y la imagen rota:
+    // los datos de la cuenta bastan para donar.
+    if(!d.QR){ if(box) box.hidden=true; return; }
+    im.onerror=()=>{ if(box) box.hidden=true; };
+    im.src=d.QR; im.alt="Código QR para donar a "+(d.ORG||"");
+  });
+  if($("donateBanner")) $("donateBanner").hidden=false;
+  if($("wDonate")) $("wDonate").hidden=false;
 }
 
 function boot(){

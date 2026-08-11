@@ -20,11 +20,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./styles.css">
+<!-- Antes del CSS/pintado: fija la marca y el tema segun el dominio, sin parpadeo -->
+<script src="./config.js"></script>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <a class="brand" href="/" aria-label="Juntos Ayudando — ir al inicio">
+   <div class="topbar">
+    <a class="brand" href="/" aria-label="Ir al inicio">
       <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
         <defs><clipPath id="jaHeart">
           <path transform="translate(-2 0)" d="M32 54C20 45 8 35 8 23C8 15 15 10 22 10C27 10 31 13 32 17Z"/>
@@ -38,6 +41,14 @@
       </svg>
       <span class="brand-name" id="brandName">Juntos Ayudando</span>
     </a>
+
+    <!-- Apoya + logo del aliado (solo en las marcas que lo tengan configurado) -->
+    <div class="support" id="supportBox" hidden>
+      <span class="support-lbl" id="supportLbl">Apoya</span>
+      <span class="support-badge"><img id="supportLogo" src="" alt="" loading="lazy"></span>
+    </div>
+   </div>
+
     <div class="eyebrow" id="eyebrow">Red de ayuda mutua · Emergencias</div>
     <h1 id="heroTitle">Ayudémonos entre todos 🤝</h1>
     <p class="sub" id="heroSub"></p>
@@ -49,6 +60,17 @@
       <button class="btn btn-primary" id="openPost">＋ Publicar</button>
     </div>
   </header>
+
+  <!-- Donación en efectivo. Solo aparece en las marcas con DONATION en config.js -->
+  <section class="donate" id="donateBanner" hidden>
+    <div class="donate-qr"><img id="donateQR" src="" alt="Código QR para donar"></div>
+    <div class="donate-body">
+      <h2 class="donate-h">💙 Donación en efectivo</h2>
+      <p class="donate-lead">Directamente a la <strong id="donateOrg"></strong>. Escanea el código QR desde tu app bancaria o transfiere a la cuenta:</p>
+      <dl class="donate-data" id="donateData"></dl>
+      <p class="donate-note" id="donateNote"></p>
+    </div>
+  </section>
 
   <div class="gsearch-wrap">
     <input class="field" id="gsearch" type="search" placeholder="🔎 Buscar en todo: nombre de persona, suministro, ciudad…" aria-label="Buscar en todo">
@@ -120,7 +142,7 @@
 
   <footer>
     Hecho para ayudarnos entre todos. Lo que publiques es público: cualquiera con el enlace verá el ítem, la ubicación y el teléfono de contacto. No almacenamos información tuya más allá de lo que voluntariamente publicas.
-    <div class="credit">Creado sin ánimo de lucro ni ningún fin comercial por <strong>Jef</strong> · <a href="https://instagram.com/soyeljef" target="_blank" rel="noopener">@soyeljef</a></div>
+    <div class="credit" id="credit"></div>
   </footer>
 </div>
 
@@ -313,6 +335,19 @@
   </div>
 </div>
 
+<!-- Modal: Donación en efectivo -->
+<div class="overlay" id="donateOverlay">
+  <div class="modal">
+    <button class="x" data-close aria-label="Cerrar">×</button>
+    <h2>💙 Donación en efectivo</h2>
+    <p class="lead">Tu aporte va <strong>directo a la <span id="donateOrg2"></span></strong>. Escanea el QR desde tu app bancaria o transfiere a la cuenta.</p>
+    <div class="donate-qr big"><img id="donateQR2" src="" alt="Código QR para donar"></div>
+    <dl class="donate-data" id="donateData2"></dl>
+    <p class="donate-note" id="donateNote2"></p>
+    <div class="modal-actions"><button class="btn btn-primary btn-block" data-close>Listo</button></div>
+  </div>
+</div>
+
 <!-- Modal: Bienvenida / elección rápida -->
 <div class="overlay" id="welcomeOverlay">
   <div class="modal">
@@ -324,12 +359,12 @@
       <button class="wbtn need" data-go="necesito"><span class="wic">🙋</span><strong>Necesito ayuda</strong><small>Me hace falta algo</small></button>
       <button class="wbtn need" data-go="busca"><span class="wic">🔎</span><strong>Busco a alguien</strong><small>Persona desaparecida</small></button>
       <button class="wbtn off" data-go="ubicada"><span class="wic">🫶</span><strong>Encontré a alguien</strong><small>Persona ya ubicada</small></button>
+      <button class="wbtn give" id="wDonate" data-go="donar" hidden><span class="wic">💙</span><strong>Donación en efectivo</strong><small>Aporta a la fundación</small></button>
     </div>
     <div class="modal-actions"><button class="btn btn-ghost btn-block" data-close>Solo explorar la web</button></div>
   </div>
 </div>
 
-<script src="./config.js"></script>
 <script type="module" src="./app.js"></script>
 </body>
 </html>

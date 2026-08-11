@@ -3,12 +3,53 @@
   --signal:#DD5B27;--signal-soft:#FBEAE1;--muted:#857F70;--line:#E7E1D4;--taken:#B23A30;
   --radius:14px;--shadow:0 1px 0 rgba(21,35,31,.04), 0 8px 24px -16px rgba(21,35,31,.35);
 }
+
+/* Tema AZUL — juntosporcolombia.fundacionfalcao.org.
+   El acento (--signal) es ambar y no otro azul a proposito: distingue
+   "se ofrece" de "se necesita" de un vistazo, tambien para daltonicos. */
+:root[data-brand="azul"]{
+  --ink:#0F1D33;--paper:#F5F8FD;--card:#FFFFFF;--pine:#123E86;--pine-soft:#E4EDFA;
+  --signal:#D98209;--signal-soft:#FBEEDA;--muted:#6B7789;--line:#DCE4F0;--taken:#A8393B;
+}
+/* El ambar queda solo para distinguir "se necesita"; los botones de accion van en azul */
+:root[data-brand="azul"] .btn-primary{background:var(--pine)}
 *{box-sizing:border-box}html,body{margin:0;padding:0}
 body{background:var(--paper);color:var(--ink);font-family:"Figtree",system-ui,sans-serif;font-size:16px;line-height:1.5;
   -webkit-font-smoothing:antialiased;background-image:radial-gradient(rgba(21,35,31,.035) 1px,transparent 1px);background-size:22px 22px}
 .wrap{max-width:1080px;margin:0 auto;padding:20px 18px 80px}
 header.top{padding:26px 0 16px;border-bottom:1px solid var(--line);margin-bottom:16px}
-.brand{display:inline-flex;align-items:center;gap:9px;text-decoration:none;margin-bottom:16px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.brand{display:inline-flex;align-items:center;gap:9px;text-decoration:none}
+
+/* "Apoya" + logo del aliado. El logo es blanco, por eso va sobre una placa
+   de color: sin fondo seria invisible en el papel claro. */
+.support{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.support-lbl{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.support-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--pine);
+  border-radius:10px;padding:8px 14px;box-shadow:var(--shadow)}
+.support-badge img{height:24px;width:auto;display:block}
+
+/* Donación en efectivo */
+.donate{display:flex;gap:20px;align-items:center;background:var(--pine-soft);border:1px solid var(--line);
+  border-left:4px solid var(--pine);border-radius:14px;padding:18px 20px;margin:0 0 18px;flex-wrap:wrap}
+.donate-qr{background:#fff;border-radius:12px;padding:10px;box-shadow:var(--shadow);flex:0 0 auto}
+.donate-qr img{display:block;width:132px;height:132px;object-fit:contain}
+.donate-qr.big{margin:14px auto;padding:14px}
+.donate-qr.big img{width:210px;height:210px}
+.donate-body{flex:1 1 300px;min-width:0}
+.donate-h{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:21px;letter-spacing:-.01em;margin:0 0 6px;color:var(--ink)}
+.donate-lead{margin:0 0 10px;font-size:14.5px;color:var(--ink);line-height:1.5}
+.donate-data{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:14px}
+.donate-data dt{color:var(--muted);font-size:13px}
+.donate-data dd{margin:0;font-weight:700;color:var(--ink);word-break:break-all}
+.donate-note{margin:12px 0 0;font-size:12.5px;color:var(--muted);line-height:1.45}
+.wbtn.give{border-color:var(--pine)}
+.wbtn.give:hover{background:var(--pine-soft)}
+@media(max-width:560px){
+  .donate{gap:14px;padding:15px}
+  .donate-qr img{width:104px;height:104px}
+  .support{align-items:flex-start}
+}
 .brand-mark{width:28px;height:28px;flex-shrink:0;display:block}
 .brand-name{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:19px;letter-spacing:-.025em;color:var(--ink)}
 .brand:hover .brand-name{color:var(--pine)}
