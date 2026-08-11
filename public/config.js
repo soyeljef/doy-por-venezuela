@@ -39,6 +39,12 @@
     CUENTA_10: "0479010964",
     CUENTA_9:  "479010964",
     QR:        "./qr-falcao.png",
+    QR_SELLO:  "Bre-B · BBVA",        // etiqueta sobre el código
+    PASOS: [
+      "Ingresa a la billetera o app de tu banco.",
+      "Escanea el código QR y selecciona la cuenta.",
+      "Digita el monto de tu donación."
+    ],
     MID:       "0092811176",
     TERMINAL:  "000",
     NOTA:      "Todos los recursos son gestionados directamente por la Fundación Falcao. Esta web no recibe, administra ni intermedia ningún dinero."

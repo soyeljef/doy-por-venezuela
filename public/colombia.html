@@ -73,10 +73,15 @@
 
   <!-- Donación en efectivo. Solo aparece en las marcas con DONATION en config.js -->
   <section class="donate" id="donateBanner" hidden>
-    <div class="donate-qr"><img id="donateQR" src="" alt="Código QR para donar"></div>
+    <div class="donate-qr">
+      <span class="qr-sello" id="qrSello"></span>
+      <img id="donateQR" src="" alt="Código QR Bre-B para donar">
+    </div>
     <div class="donate-body">
       <h2 class="donate-h">💙 Donación en efectivo</h2>
-      <p class="donate-lead">Directamente a la <strong id="donateOrg"></strong>. Escanea el código QR desde tu app bancaria o transfiere a la cuenta:</p>
+      <p class="donate-lead">Directamente a la <strong id="donateOrg"></strong>. Así se hace:</p>
+      <ol class="donate-pasos" id="donatePasos"></ol>
+      <p class="donate-lead">O transfiere a la cuenta:</p>
       <dl class="donate-data" id="donateData"></dl>
       <p class="donate-note" id="donateNote"></p>
     </div>
@@ -350,8 +355,12 @@
   <div class="modal">
     <button class="x" data-close aria-label="Cerrar">×</button>
     <h2>💙 Donación en efectivo</h2>
-    <p class="lead">Tu aporte va <strong>directo a la <span id="donateOrg2"></span></strong>. Escanea el QR desde tu app bancaria o transfiere a la cuenta.</p>
-    <div class="donate-qr big"><img id="donateQR2" src="" alt="Código QR para donar"></div>
+    <p class="lead">Tu aporte va <strong>directo a la <span id="donateOrg2"></span></strong>. Escanea el código <strong>Bre-B desde la app de BBVA</strong>, o transfiere a la cuenta.</p>
+    <div class="donate-qr big">
+      <span class="qr-sello" id="qrSello2"></span>
+      <img id="donateQR2" src="" alt="Código QR Bre-B para donar">
+    </div>
+    <ol class="donate-pasos" id="donatePasos2"></ol>
     <dl class="donate-data" id="donateData2"></dl>
     <p class="donate-note" id="donateNote2"></p>
     <div class="modal-actions"><button class="btn btn-primary btn-block" data-close>Listo</button></div>

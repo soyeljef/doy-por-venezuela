@@ -50,7 +50,20 @@ header.top{padding:26px 0 16px;border-bottom:1px solid var(--line);margin-bottom
 /* Donación en efectivo */
 .donate{display:flex;gap:20px;align-items:center;background:var(--pine-soft);border:1px solid var(--line);
   border-left:4px solid var(--pine);border-radius:14px;padding:18px 20px;margin:0 0 18px;flex-wrap:wrap}
-.donate-qr{background:#fff;border-radius:12px;padding:10px;box-shadow:var(--shadow);flex:0 0 auto}
+/* El codigo es Bre-B de BBVA: se rotula encima para que nadie pierda tiempo
+   intentando escanearlo desde otra app. */
+.donate-qr{background:#fff;border-radius:12px;padding:10px;box-shadow:var(--shadow);flex:0 0 auto;
+  display:flex;flex-direction:column;align-items:center;gap:8px}
+.qr-sello{display:inline-flex;align-items:center;gap:6px;background:#004481;color:#fff;
+  font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+  padding:5px 12px;border-radius:999px;white-space:nowrap}
+.donate-qr.big .qr-sello{font-size:13px;padding:6px 14px}
+
+/* Los 3 pasos para donar */
+.donate-pasos{margin:0 0 12px;padding:0 0 0 20px;display:flex;flex-direction:column;gap:5px}
+.donate-pasos li{font-size:14.5px;line-height:1.45;color:var(--ink)}
+.donate-pasos li::marker{color:var(--pine);font-weight:800}
+#donatePasos2{margin:14px 0 16px}
 .donate-qr img{display:block;width:160px;height:160px;object-fit:contain}
 /* En el banner el QR se puede pulsar para verlo grande en el modal */
 #donateBanner .donate-qr{cursor:zoom-in;border:none;background:#fff;transition:transform .12s}

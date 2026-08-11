@@ -645,6 +645,9 @@ function initBrandBlocks(){
   ["donateData","donateData2"].forEach(id=>{ if($(id)) $(id).innerHTML=filas; });
   ["donateNote","donateNote2"].forEach(id=>{ if($(id)) $(id).textContent=d.NOTA||""; });
   ["donateOrg","donateOrg2"].forEach(id=>{ if($(id)) $(id).textContent=d.ORG||""; });
+  ["qrSello","qrSello2"].forEach(id=>{ const e=$(id); if(e){ e.textContent=d.QR_SELLO||""; e.hidden=!d.QR_SELLO; } });
+  const pasos=(d.PASOS||[]).map(p=>`<li>${esc(p)}</li>`).join("");
+  ["donatePasos","donatePasos2"].forEach(id=>{ const e=$(id); if(e){ e.innerHTML=pasos; e.hidden=!pasos; } });
   ["donateQR","donateQR2"].forEach(id=>{
     const im=$(id); if(!im) return;
     const box=im.closest(".donate-qr");
