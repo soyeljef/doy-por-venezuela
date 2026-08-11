@@ -76,6 +76,25 @@ async function loadItems(){
   ITEMS = data || []; clearErr(); rebuildCities(); render();
 }
 async function rpc(name, args){ const { data, error } = await sb.rpc(name, args); if(error) throw error; return data; }
+
+/* ---------- Refresco automatico ----------
+   Solo se refresca con la pestana VISIBLE. Antes se descargaba la lista entera
+   cada 20 segundos aunque la web estuviera minimizada o en otra pestana, y en
+   el plan gratuito de Supabase el trafico es el recurso que se agota primero
+   (5 GB/mes), no el almacenamiento.
+   Al volver a la pestana se refresca al instante, asi que el usuario nunca ve
+   datos viejos por haber estado fuera. */
+let pollTimer=null;
+function startPolling(){
+  if(pollTimer || document.hidden) return;
+  pollTimer=setInterval(()=>{ loadItems(); loadPersonas(); }, CFG.POLL_MS||60000);
+}
+function stopPolling(){ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } }
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){ stopPolling(); return; }
+  loadItems(); loadPersonas();   // dato fresco al volver, sin esperar al intervalo
+  startPolling();
+});
 async function loadPersonas(){
   if(!sb) return;
   const { data, error } = await sb.from("personas_public").select("*").order("created_at",{ascending:false}).limit(1000);
@@ -676,7 +695,7 @@ function boot(){
   sb=createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
   try{ if(!sessionStorage.getItem("dpv_welcomed")){ sessionStorage.setItem("dpv_welcomed","1"); $("welcomeOverlay").classList.add("open"); } }catch(e){ $("welcomeOverlay").classList.add("open"); }
   loadItems(); loadPersonas();
-  setInterval(()=>{ loadItems(); loadPersonas(); }, CFG.POLL_MS||20000);
+  startPolling();
   document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ loadItems(); loadPersonas(); } });
 }
 boot();

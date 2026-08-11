@@ -20,7 +20,9 @@
     PERSONAS_COUNTRY: "Colombia",
     PERSONAS_CC:      "57",
 
-    POLL_MS: 20000,          // cada cuántos ms refresca la web
+    // Cada cuántos ms se refresca la lista, SOLO con la pestaña visible.
+    // A 20s el tráfico se disparaba sin que nadie notara la diferencia.
+    POLL_MS: 60000,
     THEME:   "verde",        // tema visual por defecto
     CREDIT:  'Creado sin ánimo de lucro ni ningún fin comercial por <strong>Jef</strong> · <a href="https://instagram.com/soyeljef" target="_blank" rel="noopener">@soyeljef</a>',
     SUPPORT:  null,          // bloque "Apoya" (logo aliado). null = oculto
