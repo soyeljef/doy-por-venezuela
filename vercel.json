@@ -1,12 +1,18 @@
 {
   "outputDirectory": "public",
-  "cleanUrls": true,
-  "redirects": [
+  "buildCommand": "node tools/build-brands.js",
+  "routes": [
     {
-      "source": "/(.*)",
+      "src": "/(.*)",
       "has": [{ "type": "host", "value": "(www\\.)?voyporvenezuela\\.com" }],
-      "destination": "https://juntosayudando.com/$1",
-      "permanent": true
-    }
+      "status": 308,
+      "headers": { "Location": "https://juntosayudando.com/$1" }
+    },
+    {
+      "src": "/",
+      "has": [{ "type": "host", "value": "juntosporcolombia\\.fundacionfalcao\\.org" }],
+      "dest": "/colombia.html"
+    },
+    { "handle": "filesystem" }
   ]
 }

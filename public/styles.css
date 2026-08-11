@@ -29,6 +29,24 @@ header.top{padding:26px 0 16px;border-bottom:1px solid var(--line);margin-bottom
   border-radius:10px;padding:8px 14px;box-shadow:var(--shadow)}
 .support-badge img{height:24px;width:auto;display:block}
 
+/* Barra de acciones rápidas: los 5 botones del popup, siempre a mano.
+   En movil se desliza en horizontal en vez de apilarse y comerse la pantalla. */
+.quickbar{display:flex;gap:8px;margin:0 0 16px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.quickbar::-webkit-scrollbar{display:none}
+.qb{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;flex:0 0 auto;cursor:pointer;
+  font-family:inherit;font-weight:700;font-size:14px;color:var(--ink);background:var(--card);
+  border:1px solid var(--line);border-radius:999px;padding:10px 15px;transition:.12s;box-shadow:var(--shadow)}
+.qb:hover{transform:translateY(-1px)}
+.qb .qi{font-size:16px;line-height:1}
+.qb-off:hover{border-color:var(--pine)}
+.qb-need:hover{border-color:var(--signal)}
+.qb-give{border-color:var(--pine);background:var(--pine-soft)}
+.qb-give:hover{background:var(--card)}
+@media(max-width:560px){
+  .quickbar{margin-left:-18px;margin-right:-18px;padding-left:18px;padding-right:18px}
+  .qb{font-size:13.5px;padding:9px 13px}
+}
+
 /* Donación en efectivo */
 .donate{display:flex;gap:20px;align-items:center;background:var(--pine-soft);border:1px solid var(--line);
   border-left:4px solid var(--pine);border-radius:14px;padding:18px 20px;margin:0 0 18px;flex-wrap:wrap}

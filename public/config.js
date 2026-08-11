@@ -52,7 +52,7 @@
       HERO_TITLE:    "Ayudémonos entre todos 🤝",
       HERO_SUBTITLE: "Una web para reunir suministros, cubrir necesidades y reencontrar personas cuando ocurre una emergencia. Publica lo que ofreces, lo que necesitas o a quién buscas, y coordinas directo por WhatsApp. Sin cuentas, sin registro.",
       THEME:         "azul",
-      CREDIT:        'Creado sin ánimo de lucro ni ningún fin comercial · Desarrollado por <strong>JEF RIVERO</strong>',
+      CREDIT:        'Creado sin ánimo de lucro ni ningún fin comercial · Desarrollado por Jef Riveros en colaboración con @fundacionfalcao',
       SUPPORT:       { LABEL: "Apoya", LOGO: "./logofundacionfalcao2.png", ALT: "Fundación Falcao" },
       DONATION:      DONACION_FALCAO
     },

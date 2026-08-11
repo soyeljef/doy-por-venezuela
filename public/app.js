@@ -615,7 +615,8 @@ function initUI(){
   });
 
   // --- Popup de bienvenida ---
-  $("welcomeOverlay").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
+  // Mismo comportamiento en el popup de bienvenida y en la barra de acciones rápidas
+  document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
     const go=b.dataset.go; closeAll(); $("gsearch").value=""; $("panelResultados").classList.add("hide"); $("panelNav").classList.remove("hide");
     if(go==='ofrezco'){ switchPanel('ayuda'); setPostType('ofrezco'); $("postOverlay").classList.add("open"); }
     else if(go==='necesito'){ switchPanel('ayuda'); setPostType('necesito'); $("postOverlay").classList.add("open"); }
@@ -659,7 +660,7 @@ function initBrandBlocks(){
     const caja=$("donateBanner").querySelector(".donate-qr");
     if(caja) caja.onclick=()=>$("donateOverlay").classList.add("open");
   }
-  if($("wDonate")) $("wDonate").hidden=false;
+  ["wDonate","qbDonate"].forEach(id=>{ if($(id)) $(id).hidden=false; });
 }
 
 function boot(){
